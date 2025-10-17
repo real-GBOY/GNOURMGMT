@@ -1,0 +1,90 @@
+@host = http://localhost:4005/api/teams
+@id = 689366601f511e23969424db
+### Create a new team
+POST {{host}}
+Content-Type: application/json
+
+{
+  "name": "mohsen Team",
+  "description": "Handles all product development"
+}
+
+### Get all teams
+
+GET {{host}}
+# ! Get all teams Response
+# [
+#   {
+#     "_id": "689366601f511e23969424db",
+#     "name": "mohsen Team",
+#     "description": "Handles all product development",
+#     "teamViceHead": [],
+#     "createdAt": "2025-08-06T14:27:44.481Z",
+#     "__v": 0
+#   }
+# ]
+
+### GetById
+
+GET {{host}}/{{id}}
+# ! Get team by id Response
+#
+# [
+#   {
+#     "_id": "689366601f511e23969424db",
+#     "name": "mohsen Team",
+#     "description": "Handles all product development",
+#     "teamViceHead": [],
+#     "createdAt": "2025-08-06T14:27:44.481Z",
+#     "__v": 0
+#   }
+# ]
+
+### Get Team Members
+GET {{host}}/{{id}}/members
+# ! Get Team Members Response
+# {
+#   "success": true,
+#   "data": {
+#     "team": {
+#       "_id": "689366601f511e23969424db",
+#       "name": "mohsen Team",
+#       "description": "Handles all product development"
+#     },
+#     "members": [
+#       {
+#         "_id": "68938d8fc1a3eaaf288a900c",
+#         "firstName": "John",
+#         "lastName": "Doe",
+#         "email": "john.doe@example.com",
+#         "profilePicture": "https://cloudinary_url.jpg",
+#         "role": {
+#           "_id": "68915d47342eba8c616b7b58",
+#           "key": "President"
+#         },
+#         "isVerified": true,
+#         "isActive": true
+#       }
+#     ]
+#   }
+# }
+
+### Get Team Members with Invalid Team ID
+GET {{host}}/invalid-team-id/members
+
+### Patch Team
+
+PATCH {{host}}/{{id}}
+Content-Type: application/json
+
+{
+  "name":"Mohsen Team",
+  "description" :"hello"
+}
+
+###Delete Team
+
+DELETE {{host}}/{{id}}
+
+
+

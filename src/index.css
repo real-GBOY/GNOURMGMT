@@ -1,0 +1,372 @@
+/** @format */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+	:root {
+		--background: 0 0% 100%;
+		--foreground: 222.2 84% 4.9%;
+		--card: 0 0% 100%;
+		--card-foreground: 222.2 84% 4.9%;
+		--popover: 0 0% 100%;
+		--popover-foreground: 222.2 84% 4.9%;
+		--primary: 222.2 47.4% 11.2%;
+		--primary-foreground: 210 40% 98%;
+		--secondary: 210 40% 96%;
+		--secondary-foreground: 222.2 84% 4.9%;
+		--muted: 210 40% 96%;
+		--muted-foreground: 215.4 16.3% 46.9%;
+		--accent: 210 40% 96%;
+		--accent-foreground: 222.2 84% 4.9%;
+		--destructive: 0 84.2% 60.2%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 214.3 31.8% 91.4%;
+		--input: 214.3 31.8% 91.4%;
+		--ring: 222.2 84% 4.9%;
+		--radius: 0.5rem;
+	}
+
+	.dark {
+		--background: 222.2 84% 4.9%;
+		--foreground: 210 40% 98%;
+		--card: 222.2 84% 4.9%;
+		--card-foreground: 210 40% 98%;
+		--popover: 222.2 84% 4.9%;
+		--popover-foreground: 210 40% 98%;
+		--primary: 210 40% 98%;
+		--primary-foreground: 222.2 47.4% 11.2%;
+		--secondary: 217.2 32.6% 17.5%;
+		--secondary-foreground: 210 40% 98%;
+		--muted: 217.2 32.6% 17.5%;
+		--muted-foreground: 215 20.2% 65.1%;
+		--accent: 217.2 32.6% 17.5%;
+		--accent-foreground: 210 40% 98%;
+		--destructive: 0 62.8% 30.6%;
+		--destructive-foreground: 210 40% 98%;
+		--border: 217.2 32.6% 17.5%;
+		--input: 217.2 32.6% 17.5%;
+		--ring: 212.7 26.8% 83.9%;
+	}
+
+	* {
+		font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont,
+			"Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	}
+
+	html {
+		scroll-behavior: smooth;
+	}
+
+	body {
+		font-feature-settings: "rlig" 1, "calt" 1;
+		text-rendering: optimizeLegibility;
+		-webkit-font-smoothing: antialiased;
+		-moz-osx-font-smoothing: grayscale;
+		background-color: hsl(var(--background));
+		color: hsl(var(--foreground));
+	}
+}
+
+@layer utilities {
+	.text-balance {
+		text-wrap: balance;
+	}
+
+	.shadow-vercel {
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 16px rgba(0, 0, 0, 0.06);
+	}
+
+	.shadow-vercel-lg {
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 20px 40px rgba(0, 0, 0, 0.08);
+	}
+
+	.border-vercel {
+		border-color: rgba(0, 0, 0, 0.12);
+	}
+
+	.bg-gradient-vercel {
+		background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
+	}
+
+	/* Enhanced glassy effects */
+	.shadow-3xl {
+		box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25),
+			0 0 0 1px rgba(255, 255, 255, 0.05);
+	}
+
+	/* Glass morphism utilities */
+	.glass-light {
+		background: rgba(255, 255, 255, 0.25);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.18);
+		box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+	}
+
+	.glass-dark {
+		background: rgba(17, 24, 39, 0.25);
+		backdrop-filter: blur(20px);
+		border: 1px solid rgba(255, 255, 255, 0.08);
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+	}
+
+	/* Enhanced hover effects for glassy components */
+	.glass-hover-light:hover {
+		background: rgba(255, 255, 255, 0.35);
+		backdrop-filter: blur(25px);
+		border: 1px solid rgba(255, 255, 255, 0.25);
+		box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.45);
+		transform: translateY(-2px);
+	}
+
+	.glass-hover-dark:hover {
+		background: rgba(17, 24, 39, 0.35);
+		backdrop-filter: blur(25px);
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+		transform: translateY(-2px);
+	}
+
+	/* Custom floating energy orbs animations */
+	@keyframes float-1 {
+		0%,
+		100% {
+			transform: translate(20%, 30%) scale(1);
+		}
+		25% {
+			transform: translate(60%, 20%) scale(1.1);
+		}
+		50% {
+			transform: translate(80%, 60%) scale(0.9);
+		}
+		75% {
+			transform: translate(40%, 80%) scale(1.05);
+		}
+	}
+
+	@keyframes float-2 {
+		0%,
+		100% {
+			transform: translate(70%, 10%) scale(1);
+		}
+		33% {
+			transform: translate(20%, 50%) scale(1.2);
+		}
+		66% {
+			transform: translate(80%, 80%) scale(0.8);
+		}
+	}
+
+	@keyframes float-3 {
+		0%,
+		100% {
+			transform: translate(10%, 70%) scale(1);
+		}
+		50% {
+			transform: translate(90%, 30%) scale(1.15);
+		}
+	}
+
+	@keyframes float-4 {
+		0%,
+		100% {
+			transform: translate(50%, 20%) scale(1);
+		}
+		25% {
+			transform: translate(80%, 40%) scale(0.9);
+		}
+		50% {
+			transform: translate(30%, 80%) scale(1.1);
+		}
+		75% {
+			transform: translate(10%, 50%) scale(0.95);
+		}
+	}
+
+	@keyframes float-5 {
+		0%,
+		100% {
+			transform: translate(30%, 10%) scale(1);
+		}
+		20% {
+			transform: translate(70%, 30%) scale(1.05);
+		}
+		40% {
+			transform: translate(90%, 70%) scale(0.9);
+		}
+		60% {
+			transform: translate(50%, 90%) scale(1.1);
+		}
+		80% {
+			transform: translate(10%, 60%) scale(0.95);
+		}
+	}
+
+	@keyframes float-6 {
+		0%,
+		100% {
+			transform: translate(60%, 80%) scale(1);
+		}
+		33% {
+			transform: translate(20%, 40%) scale(1.1);
+		}
+		66% {
+			transform: translate(80%, 20%) scale(0.9);
+		}
+	}
+
+	@keyframes pulse-slow {
+		0%,
+		100% {
+			opacity: 0.3;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.7;
+			transform: scale(1.1);
+		}
+	}
+
+	@keyframes pulse-slow-delay {
+		0%,
+		100% {
+			opacity: 0.2;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.6;
+			transform: scale(1.15);
+		}
+	}
+
+	@keyframes pulse-slow-delay-2 {
+		0%,
+		100% {
+			opacity: 0.25;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.65;
+			transform: scale(1.05);
+		}
+	}
+
+	@keyframes pulse-slow-delay-3 {
+		0%,
+		100% {
+			opacity: 0.18;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.55;
+			transform: scale(1.2);
+		}
+	}
+
+	@keyframes pulse-slow-delay-4 {
+		0%,
+		100% {
+			opacity: 0.12;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.45;
+			transform: scale(1.08);
+		}
+	}
+
+	@keyframes pulse-slow-delay-5 {
+		0%,
+		100% {
+			opacity: 0.2;
+			transform: scale(1);
+		}
+		50% {
+			opacity: 0.5;
+			transform: scale(1.12);
+		}
+	}
+
+	.animate-float-1 {
+		animation: float-1 20s ease-in-out infinite;
+	}
+
+	.animate-float-2 {
+		animation: float-2 25s ease-in-out infinite;
+	}
+
+	.animate-float-3 {
+		animation: float-3 18s ease-in-out infinite;
+	}
+
+	.animate-float-4 {
+		animation: float-4 22s ease-in-out infinite;
+	}
+
+	.animate-float-5 {
+		animation: float-5 30s ease-in-out infinite;
+	}
+
+	.animate-float-6 {
+		animation: float-6 16s ease-in-out infinite;
+	}
+
+	.animate-pulse-slow {
+		animation: pulse-slow 4s ease-in-out infinite;
+	}
+
+	.animate-pulse-slow-delay {
+		animation: pulse-slow-delay 4s ease-in-out infinite;
+		animation-delay: 0.5s;
+	}
+
+	.animate-pulse-slow-delay-2 {
+		animation: pulse-slow-delay-2 4s ease-in-out infinite;
+		animation-delay: 1s;
+	}
+
+	.animate-pulse-slow-delay-3 {
+		animation: pulse-slow-delay-3 4s ease-in-out infinite;
+		animation-delay: 1.5s;
+	}
+
+	.animate-pulse-slow-delay-4 {
+		animation: pulse-slow-delay-4 4s ease-in-out infinite;
+		animation-delay: 2s;
+	}
+
+	.animate-pulse-slow-delay-5 {
+		animation: pulse-slow-delay-5 4s ease-in-out infinite;
+		animation-delay: 2.5s;
+	}
+
+	/* Line clamp utilities */
+	.line-clamp-1 {
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 1;
+	}
+
+	.line-clamp-2 {
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+	}
+
+	.line-clamp-3 {
+		overflow: hidden;
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 3;
+	}
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
+}

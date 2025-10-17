@@ -1,0 +1,84 @@
+@host = http://localhost:4005
+
+### Create Event with Multipart Form and File Upload
+POST {{host}}/api/events
+Content-Type: multipart/form-data; boundary=----GnourEventBoundaryXyz
+
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="title"
+
+Tech Conference 2025
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="description"
+
+A conference about the latest in tech.
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="startDate"
+
+2025-09-15T09:00:00.000Z
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="endDate"
+
+2025-09-17T18:00:00.000Z
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="location"
+
+Cairo International Convention Center
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="eventType"
+
+team-meeting
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="createdBy"
+
+64f1a51f238fa30123456789
+------GnourEventBoundaryXyz
+Content-Disposition: form-data; name="file"; filename="test.png"
+Content-Type: image/png
+
+< ./test.png
+------GnourEventBoundaryXyz--
+
+### Get 
+GET {{host}}/api/events
+
+#  ! Get All Events Response
+# [
+#   {
+#     "_id": "6892971f03d29009b2b0f372",
+#     "title": "Tech Conference 2025",
+#     "description": "A conference about the latest in tech.",
+#     "startDate": "2025-09-15T09:00:00.000Z",
+#     "endDate": "2025-09-17T18:00:00.000Z",
+#     "location": "Cairo International Convention Center",
+#     "eventType": "team-meeting",
+#     "agenda": "https://res.cloudinary.com/dbpb1lkwh/image/upload/v1754437406/Gnour/lxwuidvys7u3ewzx9niw.jpg",
+#     "status": "scheduled",
+#     "createdBy": "64f1a51f238fa30123456789",
+#     "createdAt": "2025-08-05T23:43:27.800Z",
+#     "updatedAt": "2025-08-05T23:43:27.803Z",
+#     "__v": 0
+#   },
+#   {
+#     "_id": "6893622d1f511e239694247b",
+#     "title": "Tech Conference 2025",
+#     "description": "A conference about the latest in tech.",
+#     "startDate": "2025-09-15T09:00:00.000Z",
+#     "endDate": "2025-09-17T18:00:00.000Z",
+#     "location": "Cairo International Convention Center",
+#     "eventType": "team-meeting",
+#     "agenda": "https://res.cloudinary.com/dbpb1lkwh/image/upload/v1754489388/Gnour/jkw4g7ykrg8bs4rqdw7e.jpg",
+#     "status": "scheduled",
+#     "createdBy": "64f1a51f238fa30123456789",
+#     "createdAt": "2025-08-06T14:09:49.883Z",
+#     "updatedAt": "2025-08-06T14:09:49.886Z",
+#     "__v": 0
+#   }
+# ]
+
+
+
+
+### delete
+
+DELETE {{host}}/api/events/68928547b2966ff7a6d23e13
