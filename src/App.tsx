@@ -25,6 +25,7 @@ import Members from "./screens/dashboard/Members";
 import Feedbacks from "./screens/dashboard/Feedbacks";
 import Achievements from "./screens/dashboard/Achievements";
 import AchievementDetail from "./screens/dashboard/achievements/AchievementDetail";
+import DashBoard_Applicants from "./screens/dashboard/DashBoard_Applicants";
 import RoleBasedRoute from "./shared/Secure/RoleBasedRoute";
 import Permissions from "./shared/config/Permissions";
 import { AuthProvider } from "./shared/contexts/AuthContext";
@@ -218,7 +219,7 @@ function App() {
 									<DashboardWrapper>
 										<RoleBasedRoute
 											requiredPermission={Permissions.ViewAchievement}>
-									 		<Achievements />
+											<Achievements />
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
@@ -230,6 +231,23 @@ function App() {
 										<RoleBasedRoute
 											requiredPermission={Permissions.ViewAchievement}>
 											<AchievementDetail />
+										</RoleBasedRoute>
+									</DashboardWrapper>
+								}
+							/>
+
+							{/* Applicants Route - President Only */}
+							<Route
+								path='/dashboard/applicants'
+								element={
+									<DashboardWrapper>
+										<RoleBasedRoute
+											requiredPermission={[
+												Permissions.ViewPerson,
+												Permissions.ApprovePerson,
+												Permissions.RejectPerson,
+											]}>
+											<DashBoard_Applicants />
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
