@@ -1,0 +1,750 @@
+/** @format */
+
+import React from "react";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import {
+	BarChart3,
+	ArrowLeft,
+	Users,
+	TrendingUp,
+	PieChart,
+	Calendar,
+} from "lucide-react";
+import {
+	BarChart,
+	Bar,
+	XAxis,
+	YAxis,
+	CartesianGrid,
+	Tooltip,
+	ResponsiveContainer,
+	PieChart as RechartsPieChart,
+	Pie,
+	Cell,
+	LineChart,
+	Line,
+	Area,
+	AreaChart,
+} from "recharts";
+import { useTheme } from "../../shared/contexts/ThemeContext";
+import {
+	useGetApplicants,
+	Applicant,
+} from "../../shared/services/applicationService";
+
+const ApplicantsAnalytics: React.FC = () => {
+	const { theme } = useTheme();
+	const { data: applicants = [], isLoading } = useGetApplicants();
+
+	// Color palette for charts - theme-aware
+	const COLORS = {
+		blue: theme === "dark" ? "#3B82F6" : "#2563EB",
+		green: theme === "dark" ? "#10B981" : "#059669",
+		purple: theme === "dark" ? "#8B5CF6" : "#7C3AED",
+		orange: theme === "dark" ? "#F59E0B" : "#D97706",
+		red: theme === "dark" ? "#EF4444" : "#DC2626",
+		yellow: theme === "dark" ? "#EAB308" : "#CA8A04",
+		indigo: theme === "dark" ? "#6366F1" : "#4F46E5",
+		pink: theme === "dark" ? "#EC4899" : "#DB2777",
+	};
+
+	const PIE_COLORS = [
+		COLORS.blue,
+		COLORS.green,
+		COLORS.purple,
+		COLORS.orange,
+		COLORS.red,
+		COLORS.yellow,
+		COLORS.indigo,
+		COLORS.pink,
+	];
+
+	// Calculate analytics data
+	const analytics = React.useMemo(() => {
+		if (!applicants.length) return null;
+
+		// Team distribution
+		const teamDistribution = applicants.reduce((acc, applicant) => {
+			acc[applicant.selectedTeam] = (acc[applicant.selectedTeam] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		// Gender distribution
+		const genderDistribution = applicants.reduce((acc, applicant) => {
+			const gender = applicant.gender || "Unknown";
+			acc[gender] = (acc[gender] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		// Applications by month
+		const monthlyData = applicants.reduce((acc, applicant) => {
+			const date = new Date(applicant.createdAt);
+			const month = date.toLocaleDateString("en-US", {
+				month: "short",
+				year: "numeric",
+			});
+			acc[month] = (acc[month] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		// Faculty distribution
+		const facultyDistribution = applicants.reduce((acc, applicant) => {
+			acc[applicant.faculty] = (acc[applicant.faculty] || 0) + 1;
+			return acc;
+		}, {} as Record<string, number>);
+
+		// Convert to Recharts format
+		const teamChartData = Object.entries(teamDistribution)
+			.map(([name, value]) => ({ name, value }))
+			.sort((a, b) => b.value - a.value);
+
+		const genderChartData = Object.entries(genderDistribution).map(
+			([name, value]) => ({ name, value })
+		);
+
+		const facultyChartData = Object.entries(facultyDistribution)
+			.map(([name, value]) => ({ name, value }))
+			.sort((a, b) => b.value - a.value);
+
+		const monthlyChartData = Object.entries(monthlyData)
+			.map(([name, value]) => ({ name, value }))
+			.sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
+
+		return {
+			total: applicants.length,
+			teamDistribution,
+			genderDistribution,
+			monthlyData,
+			facultyDistribution,
+			// Recharts data
+			teamChartData,
+			genderChartData,
+			facultyChartData,
+			monthlyChartData,
+		};
+	}, [applicants]);
+
+	if (isLoading) {
+		return (
+			<div className='min-h-screen flex items-center justify-center'>
+				<div className='animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500'></div>
+			</div>
+		);
+	}
+
+	if (!analytics) {
+		return (
+			<div className='min-h-screen flex items-center justify-center'>
+				<div className='text-center'>
+					<BarChart3 size={48} className='mx-auto mb-4 text-gray-400' />
+					<p className='text-gray-500'>No data available for analytics</p>
+				</div>
+			</div>
+		);
+	}
+
+	return (
+		<div className='space-y-6 p-4 sm:p-6 lg:p-8'>
+			{/* Header */}
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5 }}
+				className='flex items-center justify-between'>
+				<div className='flex items-center space-x-4'>
+					<Link
+						to='/dashboard/applicants'
+						className={`p-2 rounded-lg transition-all duration-300 hover:scale-105 ${
+							theme === "dark"
+								? "hover:bg-gray-800/60 text-gray-400 hover:text-white"
+								: "hover:bg-gray-100/80 text-gray-600 hover:text-black"
+						}`}>
+						<ArrowLeft size={20} />
+					</Link>
+					<div>
+						<h1
+							className={`text-3xl font-bold transition-colors duration-300 ${
+								theme === "dark" ? "text-white" : "text-black"
+							}`}>
+							Applicants Analytics
+						</h1>
+						<p
+							className={`mt-2 text-lg transition-colors duration-300 ${
+								theme === "dark" ? "text-gray-400" : "text-gray-600"
+							}`}>
+							Insights and statistics about applications
+						</p>
+					</div>
+				</div>
+				<div className='flex items-center space-x-2'>
+					<BarChart3
+						size={24}
+						className={theme === "dark" ? "text-gray-400" : "text-gray-600"}
+					/>
+				</div>
+			</motion.div>
+
+			{/* Overview Cards */}
+			<motion.div
+				className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5, delay: 0.1 }}>
+				{[
+					{
+						name: "Total Applications",
+						value: analytics.total,
+						icon: Users,
+						color: "blue",
+					},
+					{
+						name: "Teams",
+						value: Object.keys(analytics.teamDistribution).length,
+						icon: PieChart,
+						color: "green",
+					},
+					{
+						name: "Faculties",
+						value: Object.keys(analytics.facultyDistribution).length,
+						icon: TrendingUp,
+						color: "purple",
+					},
+					{
+						name: "Months",
+						value: Object.keys(analytics.monthlyData).length,
+						icon: Calendar,
+						color: "orange",
+					},
+				].map((stat, index) => (
+					<motion.div
+						key={stat.name}
+						className={`p-6 rounded-xl border transition-all duration-300 hover:scale-105 ${
+							theme === "dark"
+								? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl hover:shadow-3xl hover:border-gray-600/70"
+								: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl hover:shadow-3xl hover:border-gray-300/80"
+						}`}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}>
+						<div className='flex items-center justify-between'>
+							<div>
+								<p
+									className={`text-sm font-medium transition-colors duration-300 ${
+										theme === "dark" ? "text-gray-400" : "text-gray-600"
+									}`}>
+									{stat.name}
+								</p>
+								<p
+									className={`text-2xl font-bold mt-1 transition-colors duration-300 ${
+										theme === "dark" ? "text-white" : "text-black"
+									}`}>
+									{stat.value}
+								</p>
+							</div>
+							<div
+								className={`p-3 rounded-xl transition-all duration-300 ${
+									stat.color === "blue"
+										? "bg-blue-600/30 backdrop-blur-sm"
+										: stat.color === "green"
+										? "bg-green-600/30 backdrop-blur-sm"
+										: stat.color === "purple"
+										? "bg-purple-600/30 backdrop-blur-sm"
+										: "bg-orange-600/30 backdrop-blur-sm"
+								}`}>
+								<stat.icon
+									size={24}
+									className={
+										stat.color === "blue"
+											? "text-blue-400"
+											: stat.color === "green"
+											? "text-green-400"
+											: stat.color === "purple"
+											? "text-purple-400"
+											: "text-orange-400"
+									}
+								/>
+							</div>
+						</div>
+					</motion.div>
+				))}
+			</motion.div>
+
+			{/* Recharts Grid */}
+			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
+				{/* Team Distribution - Bar Chart */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-1 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.2 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Applications by Team
+					</h3>
+					<div className='h-80'>
+						<ResponsiveContainer width='100%' height='100%'>
+							<BarChart data={analytics.teamChartData}>
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
+								/>
+								<XAxis
+									dataKey='name'
+									tick={{
+										fill: theme === "dark" ? "#D1D5DB" : "#374151",
+										fontSize: 12,
+									}}
+									axisLine={{
+										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+									}}
+								/>
+								<YAxis
+									tick={{
+										fill: theme === "dark" ? "#D1D5DB" : "#374151",
+										fontSize: 12,
+									}}
+									axisLine={{
+										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+									}}
+								/>
+								<Tooltip
+									contentStyle={{
+										backgroundColor: "transparent",
+										border: "none",
+										boxShadow: "none",
+									}}
+								/>
+								<Bar dataKey='value' fill={COLORS.blue} radius={[4, 4, 0, 0]} />
+							</BarChart>
+						</ResponsiveContainer>
+					</div>
+				</motion.div>
+
+				{/* Faculty Distribution - Pie Chart */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-2 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.3 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Applications by Faculty
+					</h3>
+					<div className='h-80'>
+						<ResponsiveContainer width='100%' height='100%'>
+							<RechartsPieChart>
+								<Pie
+									data={analytics.facultyChartData}
+									cx='50%'
+									cy='50%'
+									labelLine={false}
+									label={({ name, percent }) => {
+										const percentage =
+											typeof percent === "number"
+												? (percent * 100).toFixed(0)
+												: "0";
+										return `${name} ${percentage}%`;
+									}}
+									outerRadius={80}
+									fill='#8884d8'
+									dataKey='value'>
+									{analytics.facultyChartData.map((entry, index) => (
+										<Cell
+											key={`cell-${index}`}
+											fill={PIE_COLORS[index % PIE_COLORS.length]}
+										/>
+									))}
+								</Pie>
+								<Tooltip
+									contentStyle={{
+										backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
+										border:
+											theme === "dark"
+												? "1px solid #374151"
+												: "1px solid #E5E7EB",
+										borderRadius: "8px",
+										color: theme === "dark" ? "#F9FAFB" : "#111827",
+									}}
+								/>
+							</RechartsPieChart>
+						</ResponsiveContainer>
+					</div>
+				</motion.div>
+
+				{/* Status Distribution - Horizontal Bar Chart */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-1 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.4 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Gender Distribution
+					</h3>
+					<div className='h-80'>
+						<ResponsiveContainer width='100%' height='100%'>
+							<BarChart
+								data={analytics.genderChartData}
+								layout='horizontal'
+								margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
+								/>
+								<XAxis type='number' hide />
+								<YAxis
+									dataKey='name'
+									type='category'
+									tick={{
+										fill: theme === "dark" ? "#D1D5DB" : "#374151",
+										fontSize: 12,
+									}}
+									axisLine={{
+										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+									}}
+								/>
+								<Tooltip
+									contentStyle={{
+										backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
+										border:
+											theme === "dark"
+												? "1px solid #374151"
+												: "1px solid #E5E7EB",
+										borderRadius: "8px",
+										color: theme === "dark" ? "#F9FAFB" : "#111827",
+									}}
+								/>
+								<Bar dataKey='value' fill={COLORS.blue} radius={[0, 4, 4, 0]} />
+							</BarChart>
+						</ResponsiveContainer>
+					</div>
+				</motion.div>
+
+				{/* Monthly Applications - Line Chart */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-2 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.5 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Applications Over Time
+					</h3>
+					<div className='h-80'>
+						<ResponsiveContainer width='100%' height='100%'>
+							<AreaChart data={analytics.monthlyChartData}>
+								<CartesianGrid
+									strokeDasharray='3 3'
+									stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
+								/>
+								<XAxis
+									dataKey='name'
+									tick={{
+										fill: theme === "dark" ? "#D1D5DB" : "#374151",
+										fontSize: 12,
+									}}
+									axisLine={{
+										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+									}}
+								/>
+								<YAxis
+									tick={{
+										fill: theme === "dark" ? "#D1D5DB" : "#374151",
+										fontSize: 12,
+									}}
+									axisLine={{
+										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+									}}
+								/>
+								<Tooltip
+									contentStyle={{
+										backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
+										border:
+											theme === "dark"
+												? "1px solid #374151"
+												: "1px solid #E5E7EB",
+										borderRadius: "8px",
+										color: theme === "dark" ? "#F9FAFB" : "#111827",
+									}}
+								/>
+								<Area
+									type='monotone'
+									dataKey='value'
+									stroke={COLORS.purple}
+									fill={COLORS.purple}
+									fillOpacity={0.3}
+									strokeWidth={2}
+								/>
+							</AreaChart>
+						</ResponsiveContainer>
+					</div>
+				</motion.div>
+			</div>
+
+			{/* Original Progress Bar Charts */}
+			<div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
+				{/* Team Distribution - Progress Bars */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.6 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Team Distribution (Progress View)
+					</h3>
+					<div className='space-y-3'>
+						{Object.entries(analytics.teamDistribution)
+							.sort(([, a], [, b]) => b - a)
+							.map(([team, count]) => {
+								const percentage = (count / analytics.total) * 100;
+								return (
+									<div key={team} className='space-y-2'>
+										<div className='flex justify-between items-center'>
+											<span
+												className={`text-sm font-medium ${
+													theme === "dark" ? "text-gray-300" : "text-gray-700"
+												}`}>
+												{team}
+											</span>
+											<span
+												className={`text-sm font-bold ${
+													theme === "dark" ? "text-white" : "text-black"
+												}`}>
+												{count} ({percentage.toFixed(1)}%)
+											</span>
+										</div>
+										<div
+											className={`w-full rounded-full h-2 ${
+												theme === "dark" ? "bg-gray-800" : "bg-gray-200"
+											}`}>
+											<div
+												className={`h-2 rounded-full ${
+													theme === "dark" ? "bg-blue-500" : "bg-blue-600"
+												}`}
+												style={{ width: `${percentage}%` }}
+											/>
+										</div>
+									</div>
+								);
+							})}
+					</div>
+				</motion.div>
+
+				{/* Faculty Distribution - Progress Bars */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.7 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Faculty Distribution (Progress View)
+					</h3>
+					<div className='space-y-3'>
+						{Object.entries(analytics.facultyDistribution)
+							.sort(([, a], [, b]) => b - a)
+							.map(([faculty, count]) => {
+								const percentage = (count / analytics.total) * 100;
+								return (
+									<div key={faculty} className='space-y-2'>
+										<div className='flex justify-between items-center'>
+											<span
+												className={`text-sm font-medium transition-colors duration-300 ${
+													theme === "dark" ? "text-gray-300" : "text-gray-700"
+												}`}>
+												{faculty}
+											</span>
+											<span
+												className={`text-sm font-bold transition-colors duration-300 ${
+													theme === "dark" ? "text-white" : "text-black"
+												}`}>
+												{count} ({percentage.toFixed(1)}%)
+											</span>
+										</div>
+										<div
+											className={`w-full rounded-full h-2 ${
+												theme === "dark" ? "bg-gray-800" : "bg-gray-200"
+											}`}>
+											<div
+												className={`h-2 rounded-full ${
+													theme === "dark" ? "bg-red-500" : "bg-green-600"
+												}`}
+												style={{ width: `${percentage}%` }}
+											/>
+										</div>
+									</div>
+								);
+							})}
+					</div>
+				</motion.div>
+
+				{/* Status Distribution - Progress Bars */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.8 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Gender Distribution (Progress View)
+					</h3>
+					<div className='space-y-3'>
+						{Object.entries(analytics.genderDistribution)
+							.sort(([, a], [, b]) => b - a)
+							.map(([gender, count]) => {
+								const percentage = (count / analytics.total) * 100;
+								const genderColor =
+									gender === "Male"
+										? "blue"
+										: gender === "Female"
+										? "pink"
+										: "purple";
+								return (
+									<div key={gender} className='space-y-2'>
+										<div className='flex justify-between items-center'>
+											<span
+												className={`text-sm font-medium transition-colors duration-300 ${
+													theme === "dark" ? "text-gray-300" : "text-gray-700"
+												}`}>
+												{gender}
+											</span>
+											<span
+												className={`text-sm font-bold transition-colors duration-300 ${
+													theme === "dark" ? "text-white" : "text-black"
+												}`}>
+												{count} ({percentage.toFixed(1)}%)
+											</span>
+										</div>
+										<div
+											className={`w-full rounded-full h-2 ${
+												theme === "dark" ? "bg-gray-800" : "bg-gray-200"
+											}`}>
+											<div
+												className={`h-2 rounded-full ${
+													genderColor === "blue"
+														? theme === "dark"
+															? "bg-blue-500"
+															: "bg-blue-600"
+														: genderColor === "pink"
+														? theme === "dark"
+															? "bg-pink-500"
+															: "bg-pink-600"
+														: theme === "dark"
+														? "bg-purple-500"
+														: "bg-purple-600"
+												}`}
+												style={{ width: `${percentage}%` }}
+											/>
+										</div>
+									</div>
+								);
+							})}
+					</div>
+				</motion.div>
+
+				{/* Monthly Applications - Progress Bars */}
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.9 }}>
+					<h3
+						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						Applications Over Time (Progress View)
+					</h3>
+					<div className='space-y-3'>
+						{Object.entries(analytics.monthlyData)
+							.sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
+							.map(([month, count]) => {
+								const maxCount = Math.max(
+									...Object.values(analytics.monthlyData)
+								);
+								const percentage = (count / maxCount) * 100;
+								return (
+									<div key={month} className='space-y-2'>
+										<div className='flex justify-between items-center'>
+											<span
+												className={`text-sm font-medium transition-colors duration-300 ${
+													theme === "dark" ? "text-gray-300" : "text-gray-700"
+												}`}>
+												{month}
+											</span>
+											<span
+												className={`text-sm font-bold transition-colors duration-300 ${
+													theme === "dark" ? "text-white" : "text-black"
+												}`}>
+												{count}
+											</span>
+										</div>
+										<div
+											className={`w-full rounded-full h-2 ${
+												theme === "dark" ? "bg-gray-800" : "bg-gray-200"
+											}`}>
+											<div
+												className={`h-2 rounded-full ${
+													theme === "dark" ? "bg-purple-500" : "bg-purple-600"
+												}`}
+												style={{ width: `${percentage}%` }}
+											/>
+										</div>
+									</div>
+								);
+							})}
+					</div>
+				</motion.div>
+			</div>
+		</div>
+	);
+};
+
+export default ApplicantsAnalytics;

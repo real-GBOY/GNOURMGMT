@@ -37,7 +37,7 @@ const Login: React.FC = () => {
 			await login(data.email, data.password);
 			console.log("Login successful, navigating to dashboard");
 			toastService.success("Login successful! Welcome back.");
-			navigate("/dashboard");
+			navigate("/dashboard/applicants");
 		} catch (error: unknown) {
 			console.error("Login error in component:", error);
 			const errorMessage =

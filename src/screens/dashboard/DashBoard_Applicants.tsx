@@ -18,6 +18,7 @@ import {
 	Briefcase,
 	ExternalLink,
 	UserPlus,
+	BarChart3,
 } from "lucide-react";
 import { useTheme } from "../../shared/contexts/ThemeContext";
 import {
@@ -27,13 +28,12 @@ import {
 	Applicant,
 } from "../../shared/services/applicationService";
 import Modal from "../../shared/components/Modal";
+import { Link } from "react-router-dom";
 
 const DashBoard_Applicants: React.FC = () => {
 	const { theme } = useTheme();
 	const [searchTerm, setSearchTerm] = useState("");
-	const [statusFilter, setStatusFilter] = useState<
-		"all" | "pending" | "approved" | "rejected"
-	>("all");
+	const [teamFilter, setTeamFilter] = useState<string>("all");
 	const [selectedApplicant, setSelectedApplicant] = useState<Applicant | null>(
 		null
 	);
@@ -55,10 +55,10 @@ const DashBoard_Applicants: React.FC = () => {
 			applicant.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
 			applicant.selectedTeam.toLowerCase().includes(searchTerm.toLowerCase());
 
-		const matchesStatus =
-			statusFilter === "all" || applicant.status === statusFilter;
+		const matchesTeam =
+			teamFilter === "all" || applicant.selectedTeam === teamFilter;
 
-		return matchesSearch && matchesStatus;
+		return matchesSearch && matchesTeam;
 	});
 
 	// Statistics
@@ -69,6 +69,11 @@ const DashBoard_Applicants: React.FC = () => {
 		approved: applicants.filter((app) => app.status === "approved").length,
 		rejected: applicants.filter((app) => app.status === "rejected").length,
 	};
+
+	// Get unique teams for filter
+	const uniqueTeams = Array.from(
+		new Set(applicants.map((app) => app.selectedTeam))
+	).sort();
 
 	const handleViewApplicant = (applicant: Applicant) => {
 		setSelectedApplicant(applicant);
@@ -132,7 +137,7 @@ const DashBoard_Applicants: React.FC = () => {
 	};
 
 	return (
-		<div className='space-y-6'>
+		<div className='space-y-6 p-4 sm:p-6 lg:p-8'>
 			{/* Header */}
 			<motion.div
 				initial={{ opacity: 0, y: 20 }}
@@ -153,7 +158,17 @@ const DashBoard_Applicants: React.FC = () => {
 							Manage and review job applications
 						</p>
 					</div>
-					<div className='flex items-center space-x-2'>
+					<div className='flex items-center space-x-3'>
+						<Link
+							to='/dashboard/applicants/analytics'
+							className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 ${
+								theme === "dark"
+									? "bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 hover:text-blue-300 border border-blue-500/30"
+									: "bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 border border-blue-200"
+							}`}>
+							<BarChart3 size={18} />
+							<span>Analytics</span>
+						</Link>
 						<UserPlus
 							size={24}
 							className={theme === "dark" ? "text-gray-400" : "text-gray-600"}
@@ -162,89 +177,41 @@ const DashBoard_Applicants: React.FC = () => {
 				</div>
 			</motion.div>
 
-			{/* Stats Grid */}
+			{/* Total Applicants Stats */}
 			<motion.div
-				className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'
+				className='grid grid-cols-1 gap-6'
 				initial={{ opacity: 0, y: 20 }}
 				animate={{ opacity: 1, y: 0 }}
 				transition={{ duration: 0.5, delay: 0.1 }}>
-				{[
-					{
-						name: "Total Applicants",
-						value: stats.total,
-						icon: Users,
-						color: "blue",
-					},
-					{
-						name: "Pending Review",
-						value: stats.pending,
-						icon: Clock,
-						color: "yellow",
-					},
-					{
-						name: "Approved",
-						value: stats.approved,
-						icon: CheckCircle,
-						color: "green",
-					},
-					{
-						name: "Rejected",
-						value: stats.rejected,
-						icon: XCircle,
-						color: "red",
-					},
-				].map((stat, index) => (
-					<motion.div
-						key={stat.name}
-						className={`p-6 rounded-xl border transition-all duration-300 hover:scale-105 ${
-							theme === "dark"
-								? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl hover:shadow-3xl hover:border-gray-600/70"
-								: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl hover:shadow-3xl hover:border-gray-300/80"
-						}`}
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}>
-						<div className='flex items-center justify-between'>
-							<div>
-								<p
-									className={`text-sm font-medium transition-colors duration-300 ${
-										theme === "dark" ? "text-gray-400" : "text-gray-600"
-									}`}>
-									{stat.name}
-								</p>
-								<p
-									className={`text-2xl font-bold mt-1 transition-colors duration-300 ${
-										theme === "dark" ? "text-white" : "text-black"
-									}`}>
-									{stat.value}
-								</p>
-							</div>
-							<div
-								className={`p-3 rounded-xl transition-all duration-300 ${
-									stat.color === "blue"
-										? "bg-blue-600/30 backdrop-blur-sm"
-										: stat.color === "yellow"
-										? "bg-yellow-600/30 backdrop-blur-sm"
-										: stat.color === "green"
-										? "bg-green-600/30 backdrop-blur-sm"
-										: "bg-red-600/30 backdrop-blur-sm"
+				<motion.div
+					className={`p-6 rounded-xl border transition-all duration-300 hover:scale-105 ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl hover:shadow-3xl hover:border-gray-600/70"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl hover:shadow-3xl hover:border-gray-300/80"
+					}`}
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.1 }}>
+					<div className='flex items-center justify-between'>
+						<div>
+							<p
+								className={`text-sm font-medium transition-colors duration-300 ${
+									theme === "dark" ? "text-gray-400" : "text-gray-600"
 								}`}>
-								<stat.icon
-									size={24}
-									className={
-										stat.color === "blue"
-											? "text-blue-400"
-											: stat.color === "yellow"
-											? "text-yellow-400"
-											: stat.color === "green"
-											? "text-green-400"
-											: "text-red-400"
-									}
-								/>
-							</div>
+								Total Applicants
+							</p>
+							<p
+								className={`text-2xl font-bold mt-1 transition-colors duration-300 ${
+									theme === "dark" ? "text-white" : "text-black"
+								}`}>
+								{stats.total}
+							</p>
 						</div>
-					</motion.div>
-				))}
+						<div className='p-3 rounded-xl transition-all duration-300 bg-blue-600/30 backdrop-blur-sm'>
+							<Users size={24} className='text-blue-400' />
+						</div>
+					</div>
+				</motion.div>
 			</motion.div>
 
 			{/* Filters and Search */}
@@ -279,24 +246,26 @@ const DashBoard_Applicants: React.FC = () => {
 						/>
 					</div>
 
-					{/* Status Filter */}
+					{/* Team Filter */}
 					<div className='flex items-center space-x-2'>
 						<Filter
 							size={20}
 							className={theme === "dark" ? "text-gray-400" : "text-gray-500"}
 						/>
 						<select
-							value={statusFilter}
-							onChange={(e) => setStatusFilter(e.target.value as any)}
+							value={teamFilter}
+							onChange={(e) => setTeamFilter(e.target.value)}
 							className={`px-4 py-3 rounded-lg border transition-all duration-300 focus:outline-none focus:ring-2 ${
 								theme === "dark"
 									? "bg-gray-800/60 border-gray-700/50 text-white focus:ring-blue-500/50 focus:border-blue-500/50"
 									: "bg-white/60 border-gray-200/60 text-black focus:ring-blue-500/50 focus:border-blue-500/50"
 							}`}>
-							<option value='all'>All Status</option>
-							<option value='pending'>Pending</option>
-							<option value='approved'>Approved</option>
-							<option value='rejected'>Rejected</option>
+							<option value='all'>All Teams</option>
+							{uniqueTeams.map((team) => (
+								<option key={team} value={team}>
+									{team}
+								</option>
+							))}
 						</select>
 					</div>
 				</div>
@@ -340,7 +309,7 @@ const DashBoard_Applicants: React.FC = () => {
 							className={`text-sm transition-colors duration-300 ${
 								theme === "dark" ? "text-gray-500" : "text-gray-500"
 							}`}>
-							{searchTerm || statusFilter !== "all"
+							{searchTerm || teamFilter !== "all"
 								? "Try adjusting your search or filter criteria"
 								: "No applications have been submitted yet"}
 						</p>
@@ -464,34 +433,6 @@ const DashBoard_Applicants: React.FC = () => {
 													title='View Details'>
 													<Eye size={16} />
 												</button>
-												{applicant.status !== "approved" && (
-													<button
-														onClick={() =>
-															handleStatusUpdate(applicant._id, "approved")
-														}
-														className={`p-2 rounded-lg transition-all duration-300 hover:scale-105 ${
-															theme === "dark"
-																? "hover:bg-green-900/30 text-green-400 hover:text-green-300"
-																: "hover:bg-green-100/80 text-green-600 hover:text-green-700"
-														}`}
-														title='Approve'>
-														<CheckCircle size={16} />
-													</button>
-												)}
-												{applicant.status !== "rejected" && (
-													<button
-														onClick={() =>
-															handleStatusUpdate(applicant._id, "rejected")
-														}
-														className={`p-2 rounded-lg transition-all duration-300 hover:scale-105 ${
-															theme === "dark"
-																? "hover:bg-red-900/30 text-red-400 hover:text-red-300"
-																: "hover:bg-red-100/80 text-red-600 hover:text-red-700"
-														}`}
-														title='Reject'>
-														<XCircle size={16} />
-													</button>
-												)}
 												<button
 													onClick={() => handleDeleteApplicant(applicant)}
 													className={`p-2 rounded-lg transition-all duration-300 hover:scale-105 ${
@@ -687,17 +628,63 @@ const DashBoard_Applicants: React.FC = () => {
 						)}
 
 						{/* Social Links */}
-						{selectedApplicant.socialLinks &&
-							selectedApplicant.socialLinks.length > 0 && (
-								<div>
-									<h3
-										className={`text-lg font-semibold mb-4 transition-colors duration-300 ${
-											theme === "dark" ? "text-white" : "text-black"
-										}`}>
-										Social Links
-									</h3>
-									<div className='space-y-2'>
-										{selectedApplicant.socialLinks.map((link, index) => (
+						{(selectedApplicant.facebook ||
+							selectedApplicant.instagram ||
+							selectedApplicant.linkedin ||
+							(selectedApplicant.otherSocialLinks &&
+								selectedApplicant.otherSocialLinks.length > 0)) && (
+							<div>
+								<h3
+									className={`text-lg font-semibold mb-4 transition-colors duration-300 ${
+										theme === "dark" ? "text-white" : "text-black"
+									}`}>
+									Social Links
+								</h3>
+								<div className='space-y-2'>
+									{selectedApplicant.facebook && (
+										<a
+											href={selectedApplicant.facebook}
+											target='_blank'
+											rel='noopener noreferrer'
+											className={`inline-flex items-center space-x-2 text-sm transition-colors duration-300 hover:underline ${
+												theme === "dark"
+													? "text-blue-400 hover:text-blue-300"
+													: "text-blue-600 hover:text-blue-700"
+											}`}>
+											<ExternalLink size={14} />
+											<span>Facebook: {selectedApplicant.facebook}</span>
+										</a>
+									)}
+									{selectedApplicant.instagram && (
+										<a
+											href={selectedApplicant.instagram}
+											target='_blank'
+											rel='noopener noreferrer'
+											className={`inline-flex items-center space-x-2 text-sm transition-colors duration-300 hover:underline ${
+												theme === "dark"
+													? "text-blue-400 hover:text-blue-300"
+													: "text-blue-600 hover:text-blue-700"
+											}`}>
+											<ExternalLink size={14} />
+											<span>Instagram: {selectedApplicant.instagram}</span>
+										</a>
+									)}
+									{selectedApplicant.linkedin && (
+										<a
+											href={selectedApplicant.linkedin}
+											target='_blank'
+											rel='noopener noreferrer'
+											className={`inline-flex items-center space-x-2 text-sm transition-colors duration-300 hover:underline ${
+												theme === "dark"
+													? "text-blue-400 hover:text-blue-300"
+													: "text-blue-600 hover:text-blue-700"
+											}`}>
+											<ExternalLink size={14} />
+											<span>LinkedIn: {selectedApplicant.linkedin}</span>
+										</a>
+									)}
+									{selectedApplicant.otherSocialLinks &&
+										selectedApplicant.otherSocialLinks.map((link, index) => (
 											<a
 												key={index}
 												href={link}
@@ -712,9 +699,9 @@ const DashBoard_Applicants: React.FC = () => {
 												<span>{link}</span>
 											</a>
 										))}
-									</div>
 								</div>
-							)}
+							</div>
+						)}
 					</div>
 				)}
 			</Modal>

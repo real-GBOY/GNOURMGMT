@@ -8,10 +8,10 @@ import {
 } from "../../shared/services/attendanceService";
 import { useUsers } from "../../shared/services/userService";
 import { useEvents } from "../../shared/services/eventService";
-import { Attendance } from "../../shared/types/Attendance";
+import type { Attendance } from "../../shared/types/Attendance";
 import { CreateAttendanceFormData } from "../../shared/schemas/AttendanceSchema";
 import AttendanceForm from "../../shared/components/Form/AttendanceForm";
-import Modal from "../../shared/components/Modal/Modal";
+import Modal from "../../shared/components/Modal";
 import { toastService } from "../../shared/services/toastService";
 
 const Attendance: React.FC = () => {
@@ -27,7 +27,7 @@ const Attendance: React.FC = () => {
 	const createAttendanceMutation = useCreateAttendance();
 	const deleteAttendanceMutation = useDeleteAttendance();
 
-	const handleCreateAttendance = (data: CreateAttendanceFormData) => {
+	const handleCreateAttendance = (data: CreateAttendanceFormData | any) => {
 		createAttendanceMutation.mutate(data, {
 			onSuccess: () => {
 				setIsModalOpen(false);

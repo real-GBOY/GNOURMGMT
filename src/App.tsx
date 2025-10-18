@@ -26,6 +26,7 @@ import Feedbacks from "./screens/dashboard/Feedbacks";
 import Achievements from "./screens/dashboard/Achievements";
 import AchievementDetail from "./screens/dashboard/achievements/AchievementDetail";
 import DashBoard_Applicants from "./screens/dashboard/DashBoard_Applicants";
+import ApplicantsAnalytics from "./screens/dashboard/ApplicantsAnalytics";
 import RoleBasedRoute from "./shared/Secure/RoleBasedRoute";
 import Permissions from "./shared/config/Permissions";
 import { AuthProvider } from "./shared/contexts/AuthContext";
@@ -41,22 +42,22 @@ function App() {
 						<Routes>
 							<Route path='/' element={<Home />} />
 							<Route path='/login' element={<Login />} />
-							<Route path='/signup' element={<Signup />} />
-							<Route path='/contact' element={<Contact />} />
+							{/* <Route path='/signup' element={<Signup />} /> */}
+							{/* <Route path='/contact' element={<Contact />} /> */}
 							<Route path='/developers' element={<Developers />} />
 
 							{/* Dashboard Routes with Role-Based Protection */}
-							<Route
+							{/* <Route
 								path='/dashboard'
 								element={
 									<DashboardWrapper>
 										<Dashboard />
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Members Route */}
-							<Route
+							{/* <Route
 								path='/dashboard/members'
 								element={
 									<DashboardWrapper>
@@ -69,10 +70,10 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Teams Routes */}
-							<Route
+							{/* <Route
 								path='/dashboard/teams'
 								element={
 									<DashboardWrapper>
@@ -81,8 +82,8 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
-							<Route
+							/> */}
+							{/* <Route
 								path='/dashboard/teams/:id'
 								element={
 									<DashboardWrapper>
@@ -91,10 +92,10 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Events Routes */}
-							<Route
+							{/* <Route
 								path='/dashboard/events'
 								element={
 									<DashboardWrapper>
@@ -103,8 +104,8 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
-							<Route
+							/> */}
+							{/* <Route
 								path='/dashboard/events/:id'
 								element={
 									<DashboardWrapper>
@@ -113,8 +114,8 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
-							<Route
+							/> */}
+							{/* <Route
 								path='/dashboard/events/:id/attendance'
 								element={
 									<DashboardWrapper>
@@ -123,10 +124,10 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Tasks Routes */}
-							<Route
+							{/* <Route
 								path='/dashboard/tasks'
 								element={
 									<DashboardWrapper>
@@ -135,8 +136,8 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
-							<Route
+							/> */}
+							{/* <Route
 								path='/dashboard/tasks/:id'
 								element={
 									<DashboardWrapper>
@@ -145,10 +146,10 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Users Route */}
-							<Route
+							{/* <Route
 								path='/dashboard/users'
 								element={
 									<DashboardWrapper>
@@ -161,30 +162,30 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* User Verification Route */}
-							<Route
+							{/* <Route
 								path='/dashboard/users/verification'
 								element={
 									<DashboardWrapper>
 										<UserVerification />
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Profile Route - Always accessible */}
-							<Route
+							{/* <Route
 								path='/dashboard/profile'
 								element={
 									<DashboardWrapper>
 										<Profile />
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* User Details Route */}
-							<Route
+							{/* <Route
 								path='/dashboard/users/:userId'
 								element={
 									<DashboardWrapper>
@@ -197,10 +198,10 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Feedbacks Route */}
-							<Route
+							{/* <Route
 								path='/dashboard/feedbacks'
 								element={
 									<DashboardWrapper>
@@ -210,10 +211,10 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
 							{/* Achievements Routes */}
-							<Route
+							{/* <Route
 								path='/dashboard/achievements'
 								element={
 									<DashboardWrapper>
@@ -223,8 +224,8 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
-							<Route
+							/> */}
+							{/* <Route
 								path='/dashboard/achievements/:id'
 								element={
 									<DashboardWrapper>
@@ -234,23 +235,16 @@ function App() {
 										</RoleBasedRoute>
 									</DashboardWrapper>
 								}
-							/>
+							/> */}
 
-							{/* Applicants Route - President Only */}
+							{/* Applicants Route - Accessible to all authenticated users */}
 							<Route
 								path='/dashboard/applicants'
-								element={
-									<DashboardWrapper>
-										<RoleBasedRoute
-											requiredPermission={[
-												Permissions.ViewPerson,
-												Permissions.ApprovePerson,
-												Permissions.RejectPerson,
-											]}>
-											<DashBoard_Applicants />
-										</RoleBasedRoute>
-									</DashboardWrapper>
-								}
+								element={<DashBoard_Applicants />}
+							/>
+							<Route
+								path='/dashboard/applicants/analytics'
+								element={<ApplicantsAnalytics />}
 							/>
 
 							<Route path='*' element={<NotFound />} />

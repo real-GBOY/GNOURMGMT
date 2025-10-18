@@ -106,6 +106,15 @@ const Home: React.FC = () => {
 							}`}>
 							Developers
 						</Link>
+						<Link
+							to='/dashboard/applicants'
+							className={`px-4 sm:px-6 py-2.5 sm:py-3 font-medium rounded-md transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base ${
+								theme === "dark"
+									? "bg-blue-600 text-white hover:bg-blue-700"
+									: "bg-blue-600 text-white hover:bg-blue-700"
+							}`}>
+							Dashboard
+						</Link>
 					</motion.div>
 				</BoxReveal>
 			</div>
