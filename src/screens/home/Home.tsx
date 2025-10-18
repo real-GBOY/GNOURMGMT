@@ -257,7 +257,7 @@ function ApplicationForm() {
 					},
 					{
 						title: "Social Links",
-						fields: ["facebook", "linkedin", "instagram"],
+						fields: ["facebook", "instagram", "linkedin"],
 					},
 					{
 						title: "Terms and Conditions",
@@ -512,28 +512,6 @@ function ApplicationForm() {
 							</div>
 						);
 					},
-					linkedin: ({ register, theme }) => {
-						return (
-							<div>
-								<label
-									className={`block text-xs sm:text-sm font-medium mb-2 sm:mb-3 ${
-										theme === "dark" ? "text-slate-200" : "text-slate-700"
-									}`}>
-									LinkedIn Profile (Optional)
-								</label>
-								<input
-									{...register("linkedin" as never)}
-									type='url'
-									placeholder='https://linkedin.com/in/yourusername'
-									className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
-										theme === "dark"
-											? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 placeholder-slate-400"
-											: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 placeholder-slate-500"
-									}`}
-								/>
-							</div>
-						);
-					},
 					instagram: ({ register, theme }) => {
 						return (
 							<div>
@@ -547,6 +525,28 @@ function ApplicationForm() {
 									{...register("instagram" as never)}
 									type='url'
 									placeholder='https://instagram.com/yourusername'
+									className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
+										theme === "dark"
+											? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 placeholder-slate-400"
+											: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 placeholder-slate-500"
+									}`}
+								/>
+							</div>
+						);
+					},
+					linkedin: ({ register, theme }) => {
+						return (
+							<div>
+								<label
+									className={`block text-xs sm:text-sm font-medium mb-2 sm:mb-3 ${
+										theme === "dark" ? "text-slate-200" : "text-slate-700"
+									}`}>
+									LinkedIn Profile (Optional)
+								</label>
+								<input
+									{...register("linkedin" as never)}
+									type='url'
+									placeholder='https://linkedin.com/in/yourusername'
 									className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
 										theme === "dark"
 											? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 placeholder-slate-400"
@@ -609,8 +609,8 @@ function ApplicationForm() {
 					skills: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
 					relevantExperience:
 						"col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
-					linkedin: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
 					instagram: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
+					linkedin: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
 					acceptedTerms: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
 				}}
 			/>

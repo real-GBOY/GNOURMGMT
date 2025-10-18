@@ -63,6 +63,24 @@ export const applicationYupSchema = yup.object().shape({
 			"Facebook profile URL is required. Use format like https://facebook.com/username or https://fb.com/username"
 		)
 		.required("Facebook profile is required"),
+	instagram: yup
+		.string()
+		.trim()
+		.matches(
+			/^(https?:\/\/)(www\.)?(instagram\.com)\/.+$/i,
+			"Invalid Instagram URL. Use format like https://instagram.com/username"
+		)
+		.optional()
+		.default(""),
+	linkedin: yup
+		.string()
+		.trim()
+		.matches(
+			/^(https?:\/\/)(www\.)?(linkedin\.com)\/.+$/i,
+			"Invalid LinkedIn URL. Use format like https://linkedin.com/in/username"
+		)
+		.optional()
+		.default(""),
 	otherSocialLinks: yup
 		.array()
 		.of(

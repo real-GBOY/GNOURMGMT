@@ -11,7 +11,7 @@ export interface ApplicationPayload {
 	lastName: string;
 	email: string;
 	phone: string;
-	gender: "Male" | "Female" | "Prefer not to say";
+	gender: "Male" | "Female" | "Mickey Mouse";
 	faculty: string;
 	academicYear: "1st Year" | "2nd Year" | "3rd Year" | "4th Year" | "5th Year";
 	selectedTeam:
@@ -25,7 +25,10 @@ export interface ApplicationPayload {
 		| "Video Editing";
 	skills: string[];
 	relevantExperience: string;
-	socialLinks?: string[];
+	facebook: string;
+	linkedin?: string;
+	instagram?: string;
+	otherSocialLinks?: string[];
 	dateOfBirth: string | Date;
 	acceptedTerms: boolean;
 }
@@ -36,7 +39,7 @@ export interface Applicant {
 	lastName: string;
 	email: string;
 	phone: string;
-	gender: "Male" | "Female" | "Prefer not to say";
+	gender: "Male" | "Female" | "Mickey Mouse";
 	faculty: string;
 	academicYear: "1st Year" | "2nd Year" | "3rd Year" | "4th Year" | "5th Year";
 	selectedTeam:
@@ -50,7 +53,10 @@ export interface Applicant {
 		| "Video Editing";
 	skills: string[];
 	relevantExperience: string;
-	socialLinks?: string[];
+	facebook: string;
+	linkedin?: string;
+	instagram?: string;
+	otherSocialLinks?: string[];
 	dateOfBirth: string;
 	acceptedTerms: boolean;
 	status?: "pending" | "approved" | "rejected";
@@ -64,7 +70,7 @@ export interface UpdateApplicantPayload {
 	lastName?: string;
 	email?: string;
 	phone?: string;
-	gender?: "Male" | "Female" | "Prefer not to say";
+	gender?: "Male" | "Female" | "Mickey Mouse";
 	faculty?: string;
 	academicYear?: "1st Year" | "2nd Year" | "3rd Year" | "4th Year" | "5th Year";
 	selectedTeam?:
@@ -78,7 +84,10 @@ export interface UpdateApplicantPayload {
 		| "Video Editing";
 	skills?: string[];
 	relevantExperience?: string;
-	socialLinks?: string[];
+	facebook?: string;
+	linkedin?: string;
+	instagram?: string;
+	otherSocialLinks?: string[];
 	dateOfBirth?: string | Date;
 }
 
