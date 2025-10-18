@@ -271,122 +271,129 @@ const ApplicantsAnalytics: React.FC = () => {
 			</motion.div>
 
 			{/* Recharts Grid */}
-			<div className='grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8'>
-				{/* Team Distribution - Bar Chart */}
-				<motion.div
-					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-1 ${
-						theme === "dark"
-							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
-							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
-					}`}
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.2 }}>
-					<h3
-						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
-							theme === "dark" ? "text-white" : "text-black"
-						}`}>
-						Applications by Team
-					</h3>
-					<div className='h-80'>
-						<ResponsiveContainer width='100%' height='100%'>
-							<BarChart data={analytics.teamChartData}>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
-								/>
-								<XAxis
-									dataKey='name'
-									tick={{
-										fill: theme === "dark" ? "#D1D5DB" : "#374151",
-										fontSize: 12,
-									}}
-									axisLine={{
-										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
-									}}
-								/>
-								<YAxis
-									tick={{
-										fill: theme === "dark" ? "#D1D5DB" : "#374151",
-										fontSize: 12,
-									}}
-									axisLine={{
-										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
-									}}
-								/>
-								<Tooltip
-									contentStyle={{
-										backgroundColor: "transparent",
-										border: "none",
-										boxShadow: "none",
-									}}
-								/>
-								<Bar dataKey='value' fill={COLORS.blue} radius={[4, 4, 0, 0]} />
-							</BarChart>
-						</ResponsiveContainer>
-					</div>
-				</motion.div>
+			<div className='space-y-6 mb-8'>
+				{/* First Row - Team and Faculty Charts */}
+				<div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
+					{/* Team Distribution - Bar Chart */}
+					<motion.div
+						className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-1 ${
+							theme === "dark"
+								? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+								: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+						}`}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, delay: 0.2 }}>
+						<h3
+							className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+								theme === "dark" ? "text-white" : "text-black"
+							}`}>
+							Applications by Team
+						</h3>
+						<div className='h-80'>
+							<ResponsiveContainer width='100%' height='100%'>
+								<BarChart data={analytics.teamChartData}>
+									<CartesianGrid
+										strokeDasharray='3 3'
+										stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
+									/>
+									<XAxis
+										dataKey='name'
+										tick={{
+											fill: theme === "dark" ? "#D1D5DB" : "#374151",
+											fontSize: 12,
+										}}
+										axisLine={{
+											stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+										}}
+									/>
+									<YAxis
+										tick={{
+											fill: theme === "dark" ? "#D1D5DB" : "#374151",
+											fontSize: 12,
+										}}
+										axisLine={{
+											stroke: theme === "dark" ? "#374151" : "#E5E7EB",
+										}}
+									/>
+									<Tooltip
+										contentStyle={{
+											backgroundColor: "transparent",
+											border: "none",
+											boxShadow: "none",
+										}}
+									/>
+									<Bar
+										dataKey='value'
+										fill={COLORS.blue}
+										radius={[4, 4, 0, 0]}
+									/>
+								</BarChart>
+							</ResponsiveContainer>
+						</div>
+					</motion.div>
 
-				{/* Faculty Distribution - Pie Chart */}
-				<motion.div
-					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-2 ${
-						theme === "dark"
-							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
-							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
-					}`}
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.3 }}>
-					<h3
-						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
-							theme === "dark" ? "text-white" : "text-black"
-						}`}>
-						Applications by Faculty
-					</h3>
-					<div className='h-80'>
-						<ResponsiveContainer width='100%' height='100%'>
-							<RechartsPieChart>
-								<Pie
-									data={analytics.facultyChartData}
-									cx='50%'
-									cy='50%'
-									labelLine={false}
-									label={({ name, percent }) => {
-										const percentage =
-											typeof percent === "number"
-												? (percent * 100).toFixed(0)
-												: "0";
-										return `${name} ${percentage}%`;
-									}}
-									outerRadius={80}
-									fill='#8884d8'
-									dataKey='value'>
-									{analytics.facultyChartData.map((entry, index) => (
-										<Cell
-											key={`cell-${index}`}
-											fill={PIE_COLORS[index % PIE_COLORS.length]}
-										/>
-									))}
-								</Pie>
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
-										border:
-											theme === "dark"
-												? "1px solid #374151"
-												: "1px solid #E5E7EB",
-										borderRadius: "8px",
-										color: theme === "dark" ? "#F9FAFB" : "#111827",
-									}}
-								/>
-							</RechartsPieChart>
-						</ResponsiveContainer>
-					</div>
-				</motion.div>
+					{/* Faculty Distribution - Pie Chart */}
+					<motion.div
+						className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-2 ${
+							theme === "dark"
+								? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+								: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+						}`}
+						initial={{ opacity: 0, y: 20 }}
+						animate={{ opacity: 1, y: 0 }}
+						transition={{ duration: 0.5, delay: 0.3 }}>
+						<h3
+							className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+								theme === "dark" ? "text-white" : "text-black"
+							}`}>
+							Applications by Faculty
+						</h3>
+						<div className='h-80'>
+							<ResponsiveContainer width='100%' height='100%'>
+								<RechartsPieChart>
+									<Pie
+										data={analytics.facultyChartData}
+										cx='50%'
+										cy='50%'
+										labelLine={false}
+										label={({ name, percent }) => {
+											const percentage =
+												typeof percent === "number"
+													? (percent * 100).toFixed(0)
+													: "0";
+											return `${name} ${percentage}%`;
+										}}
+										outerRadius={80}
+										fill='#8884d8'
+										dataKey='value'>
+										{analytics.facultyChartData.map((entry, index) => (
+											<Cell
+												key={`cell-${index}`}
+												fill={PIE_COLORS[index % PIE_COLORS.length]}
+											/>
+										))}
+									</Pie>
+									<Tooltip
+										contentStyle={{
+											backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
+											border:
+												theme === "dark"
+													? "1px solid #374151"
+													: "1px solid #E5E7EB",
+											borderRadius: "8px",
+											color: theme === "dark" ? "#F9FAFB" : "#111827",
+										}}
+									/>
+								</RechartsPieChart>
+							</ResponsiveContainer>
+						</div>
+					</motion.div>
+				</div>
 
-				{/* Status Distribution - Horizontal Bar Chart */}
+				{/* Second Row - Applications Over Time (Full Width) */}
 				<motion.div
-					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-1 ${
+					className={`p-6 rounded-xl border transition-all duration-300 w-full ${
 						theme === "dark"
 							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
 							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
@@ -394,61 +401,6 @@ const ApplicantsAnalytics: React.FC = () => {
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
 					transition={{ duration: 0.5, delay: 0.4 }}>
-					<h3
-						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
-							theme === "dark" ? "text-white" : "text-black"
-						}`}>
-						Gender Distribution
-					</h3>
-					<div className='h-80'>
-						<ResponsiveContainer width='100%' height='100%'>
-							<BarChart
-								data={analytics.genderChartData}
-								layout='horizontal'
-								margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-								<CartesianGrid
-									strokeDasharray='3 3'
-									stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
-								/>
-								<XAxis type='number' hide />
-								<YAxis
-									dataKey='name'
-									type='category'
-									tick={{
-										fill: theme === "dark" ? "#D1D5DB" : "#374151",
-										fontSize: 12,
-									}}
-									axisLine={{
-										stroke: theme === "dark" ? "#374151" : "#E5E7EB",
-									}}
-								/>
-								<Tooltip
-									contentStyle={{
-										backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
-										border:
-											theme === "dark"
-												? "1px solid #374151"
-												: "1px solid #E5E7EB",
-										borderRadius: "8px",
-										color: theme === "dark" ? "#F9FAFB" : "#111827",
-									}}
-								/>
-								<Bar dataKey='value' fill={COLORS.blue} radius={[0, 4, 4, 0]} />
-							</BarChart>
-						</ResponsiveContainer>
-					</div>
-				</motion.div>
-
-				{/* Monthly Applications - Line Chart */}
-				<motion.div
-					className={`p-6 rounded-xl border transition-all duration-300 lg:col-span-2 ${
-						theme === "dark"
-							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
-							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
-					}`}
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.5 }}>
 					<h3
 						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
 							theme === "dark" ? "text-white" : "text-black"
