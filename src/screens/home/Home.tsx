@@ -139,6 +139,7 @@ export default Home;
 function ApplicationForm() {
 	const { mutateAsync, isPending } = useSubmitApplication();
 	const [isSuccessOpen, setIsSuccessOpen] = React.useState(false);
+	const [formReset, setFormReset] = React.useState(0);
 
 	const selectOptions = {
 		gender: [
@@ -212,6 +213,8 @@ function ApplicationForm() {
 		await mutateAsync(payload);
 		// Show success modal when done
 		setIsSuccessOpen(true);
+		// Reset form by incrementing the reset key
+		setFormReset((prev) => prev + 1);
 	};
 
 	// Render form by projecting array fields to text
@@ -222,6 +225,7 @@ function ApplicationForm() {
 	return (
 		<>
 			<GenericForm
+				key={formReset}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
 				schema={schemaWithAdapters as any}
 				// eslint-disable-next-line @typescript-eslint/no-explicit-any
