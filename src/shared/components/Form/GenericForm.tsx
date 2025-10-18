@@ -317,6 +317,7 @@ export function GenericForm<T extends FieldValues>({
 						theme === "dark" ? "text-slate-200" : "text-slate-700"
 					}`}>
 					{label}
+					{fieldSchema.required && <span className='text-red-500 ml-1'>*</span>}
 				</label>
 
 				{inputType === "select" ? (
@@ -548,6 +549,9 @@ export function GenericForm<T extends FieldValues>({
 										theme === "dark" ? "text-slate-200" : "text-slate-700"
 									}`}>
 									{label}
+									{fieldSchema.required && (
+										<span className='text-red-500 ml-1'>*</span>
+									)}
 								</label>
 
 								{inputType === "select" ? (

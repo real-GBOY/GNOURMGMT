@@ -113,14 +113,14 @@ const Home: React.FC = () => {
 			{/* Application Form */}
 			<BoxReveal boxColor={"#06b6d4"} duration={0.5}>
 				<motion.section
-					className={`mt-8 sm:mt-12 p-4 sm:p-6 rounded-2xl border transition-colors duration-300 ${
+					className={`mt-6 sm:mt-8 md:mt-12 p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border transition-colors duration-300 ${
 						theme === "dark"
 							? "bg-slate-900/40 border-slate-800"
 							: "bg-white/70 border-slate-200"
 					}`}
 					variants={itemVariants}>
 					<motion.h2
-						className={`text-xl sm:text-2xl font-semibold mb-4 ${
+						className={`text-lg sm:text-xl md:text-2xl font-semibold mb-3 sm:mb-4 ${
 							theme === "dark" ? "text-slate-100" : "text-slate-900"
 						}`}
 						variants={itemVariants}>
@@ -144,7 +144,7 @@ function ApplicationForm() {
 		gender: [
 			{ value: "Male", label: "Male" },
 			{ value: "Female", label: "Female" },
-			{ value: "Prefer not to say", label: "Prefer not to say" },
+			{ value: "Mickey Mouse", label: "Mickey Mouse" },
 		],
 		academicYear: [
 			{ value: "1st Year", label: "1st Year" },
@@ -187,12 +187,6 @@ function ApplicationForm() {
 	// Adapter: GenericForm doesn't support dynamic arrays natively;
 	// we'll serialize comma-separated skills and map in submit.
 	const schemaWithAdapters = applicationYupSchema.shape({
-		facebook: yup
-			.string()
-			.trim()
-			.url("Invalid URL. Include http(s) e.g., https://facebook.com/...")
-			.optional()
-			.default(""),
 		linkedin: yup
 			.string()
 			.trim()
@@ -210,18 +204,9 @@ function ApplicationForm() {
 	const onSubmit = async (data: Record<string, unknown>) => {
 		const skills = (data["skills"] as unknown as string[]) || [];
 
-		const socialLinks = [
-			(data["facebook"] as string) || "",
-			(data["linkedin"] as string) || "",
-			(data["instagram"] as string) || "",
-		]
-			.map((url) => url.trim())
-			.filter((url) => url.length > 0);
-
 		const payload = {
 			...data,
 			skills,
-			socialLinks,
 		} as unknown as Parameters<typeof mutateAsync>[0];
 
 		await mutateAsync(payload);
@@ -467,12 +452,15 @@ function ApplicationForm() {
 						return (
 							<div>
 								<label
-									className={`block text-sm font-medium mb-2 ${
+									className={`block text-xs sm:text-sm font-medium mb-2 sm:mb-3 ${
 										theme === "dark" ? "text-slate-200" : "text-slate-700"
 									}`}>
-									Skills
+									Skills <span className='text-red-500'>*</span>
 								</label>
-								<div className='grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4'>
+								<p className='text-xs text-red-500 mb-3 font-medium'>
+									* Please select at least one skill that matches your expertise
+								</p>
+								<div className='grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-3 sm:gap-4'>
 									{options.map((opt) => {
 										const active = selected.includes(opt.key);
 										return (
@@ -480,7 +468,7 @@ function ApplicationForm() {
 												type='button'
 												onClick={() => toggle(opt.key)}
 												key={opt.key}
-												className={`flex items-center gap-3 w-full text-left px-5 py-4 rounded-2xl border transition-all ${
+												className={`flex items-center gap-2 sm:gap-3 w-full text-left px-3 sm:px-4 md:px-5 py-3 sm:py-4 rounded-xl sm:rounded-2xl border transition-all hover:scale-105 min-h-[48px] ${
 													theme === "dark"
 														? active
 															? "bg-blue-600/20 border-blue-500/50 text-slate-100"
@@ -489,8 +477,12 @@ function ApplicationForm() {
 														? "bg-blue-50 border-blue-400 text-slate-900"
 														: "bg-white border-slate-200 text-slate-800 hover:border-slate-300"
 												}`}>
-												<span className='shrink-0'>{opt.icon}</span>
-												<span className='font-medium'>{opt.key}</span>
+												<span className='shrink-0 w-4 h-4 sm:w-5 sm:h-5'>
+													{opt.icon}
+												</span>
+												<span className='font-medium text-xs sm:text-sm leading-tight text-center flex-1 break-words'>
+													{opt.key}
+												</span>
 											</button>
 										);
 									})}
@@ -502,16 +494,60 @@ function ApplicationForm() {
 						return (
 							<div>
 								<label
-									className={`block text-sm font-medium mb-2 ${
+									className={`block text-xs sm:text-sm font-medium mb-2 sm:mb-3 ${
 										theme === "dark" ? "text-slate-200" : "text-slate-700"
 									}`}>
 									Relevant Experience
 								</label>
 								<textarea
 									{...register("relevantExperience" as never)}
-									rows={5}
+									rows={4}
 									placeholder='Describe your relevant experience...'
-									className={`w-full px-4 py-4 border rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
+									className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md resize-y min-h-[100px] ${
+										theme === "dark"
+											? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 placeholder-slate-400"
+											: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 placeholder-slate-500"
+									}`}
+								/>
+							</div>
+						);
+					},
+					linkedin: ({ register, theme }) => {
+						return (
+							<div>
+								<label
+									className={`block text-xs sm:text-sm font-medium mb-2 sm:mb-3 ${
+										theme === "dark" ? "text-slate-200" : "text-slate-700"
+									}`}>
+									LinkedIn Profile (Optional)
+								</label>
+								<input
+									{...register("linkedin" as never)}
+									type='url'
+									placeholder='https://linkedin.com/in/yourusername'
+									className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
+										theme === "dark"
+											? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 placeholder-slate-400"
+											: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 placeholder-slate-500"
+									}`}
+								/>
+							</div>
+						);
+					},
+					instagram: ({ register, theme }) => {
+						return (
+							<div>
+								<label
+									className={`block text-xs sm:text-sm font-medium mb-2 sm:mb-3 ${
+										theme === "dark" ? "text-slate-200" : "text-slate-700"
+									}`}>
+									Instagram Profile (Optional)
+								</label>
+								<input
+									{...register("instagram" as never)}
+									type='url'
+									placeholder='https://instagram.com/yourusername'
+									className={`w-full px-3 sm:px-4 py-3 sm:py-4 border rounded-xl sm:rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-xs sm:text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
 										theme === "dark"
 											? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 placeholder-slate-400"
 											: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 placeholder-slate-500"
@@ -561,7 +597,8 @@ function ApplicationForm() {
 										className={`${
 											theme === "dark" ? "text-slate-200" : "text-slate-800"
 										}`}>
-										I agree to the terms and conditions *
+										I agree to the terms and conditions{" "}
+										<span className='text-red-500'>*</span>
 									</span>
 								</label>
 							</div>
@@ -569,9 +606,12 @@ function ApplicationForm() {
 					},
 				}}
 				fieldItemClassName={{
-					skills: "md:col-span-2",
-					relevantExperience: "col-span-1 md:col-span-2",
-					acceptedTerms: "md:col-span-2",
+					skills: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
+					relevantExperience:
+						"col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
+					linkedin: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
+					instagram: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
+					acceptedTerms: "col-span-1 sm:col-span-2 md:col-span-2 lg:col-span-2",
 				}}
 			/>
 			<Modal

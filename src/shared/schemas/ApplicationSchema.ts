@@ -23,7 +23,7 @@ export const applicationYupSchema = yup.object().shape({
 		.required("Phone is required"),
 	gender: yup
 		.string()
-		.oneOf(["Male", "Female", "Prefer not to say"])
+		.oneOf(["Male", "Female", "Mickey Mouse"])
 		.required("Gender is required"),
 	faculty: yup.string().trim().required("Faculty is required"),
 	academicYear: yup
@@ -52,16 +52,27 @@ export const applicationYupSchema = yup.object().shape({
 				.min(1, "Skill cannot be empty")
 				.max(50, "Skill must be at most 50 characters")
 		)
-		.min(1, "Provide at least one skill")
+		.min(1, "Provide at least one non-empty skill (each up to 50 characters).")
 		.required("Skills are required"),
 	relevantExperience: yup.string().trim().optional().default(""),
-	socialLinks: yup
+	facebook: yup
+		.string()
+		.trim()
+		.matches(
+			/^(https?:\/\/)(www\.)?(facebook\.com|fb\.com)\/.+$/i,
+			"Facebook profile URL is required. Use format like https://facebook.com/username or https://fb.com/username"
+		)
+		.required("Facebook profile is required"),
+	otherSocialLinks: yup
 		.array()
 		.of(
 			yup
 				.string()
 				.trim()
-				.url("Invalid URL. Use full http(s) link, e.g., https://example.com")
+				.matches(
+					/^(https?:\/\/)([\w-]+\.)+[\w-]+(\/[\w\-._~:\/?#\[\]@!$&'()*+,;=]*)?$/i,
+					"Invalid URL. Use full http(s) link, e.g., https://example.com"
+				)
 		)
 		.optional()
 		.default([]),
@@ -69,10 +80,7 @@ export const applicationYupSchema = yup.object().shape({
 		.date()
 		.max(new Date(), "Date of birth must be a valid past date.")
 		.required("Date of birth is required"),
-	acceptedTerms: yup
-		.boolean()
-		.oneOf([true], "You must accept the terms")
-		.required(),
+	acceptedTerms: yup.boolean().default(false),
 });
 
 export type ApplicationFormData = yup.InferType<typeof applicationYupSchema>;
