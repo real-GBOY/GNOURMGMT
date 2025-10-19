@@ -1,6 +1,6 @@
 /** @format */
 
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
@@ -10,6 +10,8 @@ import {
 	TrendingUp,
 	PieChart,
 	Calendar,
+	ChevronLeft,
+	ChevronRight,
 } from "lucide-react";
 import {
 	BarChart,
@@ -29,13 +31,27 @@ import {
 } from "recharts";
 import { useTheme } from "../../shared/contexts/ThemeContext";
 import {
-	useGetApplicants,
+	useGetAllApplicantsForAnalytics,
 	Applicant,
 } from "../../shared/services/applicationService";
 
 const ApplicantsAnalytics: React.FC = () => {
 	const { theme } = useTheme();
-	const { data: applicants = [], isLoading } = useGetApplicants();
+	const [currentPage, setCurrentPage] = useState(1);
+	const itemsPerPage = 20;
+
+	const { data: allApplicants = [], isLoading } =
+		useGetAllApplicantsForAnalytics();
+
+	// Calculate pagination
+	const typedAllApplicants = allApplicants as Applicant[];
+	const totalPages = Math.ceil(typedAllApplicants.length / itemsPerPage);
+	const startIndex = (currentPage - 1) * itemsPerPage;
+	const endIndex = startIndex + itemsPerPage;
+	const paginatedApplicants = typedAllApplicants.slice(startIndex, endIndex);
+
+	// Use paginated data for analytics
+	const applicants = paginatedApplicants;
 
 	// Color palette for charts - theme-aware
 	const COLORS = {
@@ -60,36 +76,45 @@ const ApplicantsAnalytics: React.FC = () => {
 		COLORS.pink,
 	];
 
-	// Calculate analytics data
+	// Calculate analytics data using all applicants for accurate statistics
 	const analytics = React.useMemo(() => {
-		if (!applicants.length) return null;
+		if (
+			!typedAllApplicants ||
+			!Array.isArray(typedAllApplicants) ||
+			!typedAllApplicants.length
+		)
+			return null;
+
+		// Use the already typed applicants
+		const typedApplicants = typedAllApplicants;
 
 		// Team distribution
-		const teamDistribution = applicants.reduce((acc, applicant) => {
+		const teamDistribution = typedApplicants.reduce((acc, applicant) => {
 			acc[applicant.selectedTeam] = (acc[applicant.selectedTeam] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
 
 		// Gender distribution
-		const genderDistribution = applicants.reduce((acc, applicant) => {
+		const genderDistribution = typedApplicants.reduce((acc, applicant) => {
 			const gender = applicant.gender || "Unknown";
 			acc[gender] = (acc[gender] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
 
-		// Applications by month
-		const monthlyData = applicants.reduce((acc, applicant) => {
+		// Applications by day
+		const dailyData = typedApplicants.reduce((acc, applicant) => {
 			const date = new Date(applicant.createdAt);
-			const month = date.toLocaleDateString("en-US", {
+			const day = date.toLocaleDateString("en-US", {
 				month: "short",
+				day: "numeric",
 				year: "numeric",
 			});
-			acc[month] = (acc[month] || 0) + 1;
+			acc[day] = (acc[day] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
 
 		// Faculty distribution
-		const facultyDistribution = applicants.reduce((acc, applicant) => {
+		const facultyDistribution = typedApplicants.reduce((acc, applicant) => {
 			acc[applicant.faculty] = (acc[applicant.faculty] || 0) + 1;
 			return acc;
 		}, {} as Record<string, number>);
@@ -107,23 +132,23 @@ const ApplicantsAnalytics: React.FC = () => {
 			.map(([name, value]) => ({ name, value }))
 			.sort((a, b) => b.value - a.value);
 
-		const monthlyChartData = Object.entries(monthlyData)
+		const dailyChartData = Object.entries(dailyData)
 			.map(([name, value]) => ({ name, value }))
 			.sort((a, b) => new Date(a.name).getTime() - new Date(b.name).getTime());
 
 		return {
-			total: applicants.length,
+			total: typedApplicants.length,
 			teamDistribution,
 			genderDistribution,
-			monthlyData,
+			dailyData,
 			facultyDistribution,
 			// Recharts data
 			teamChartData,
 			genderChartData,
 			facultyChartData,
-			monthlyChartData,
+			dailyChartData,
 		};
-	}, [applicants]);
+	}, [typedAllApplicants]);
 
 	if (isLoading) {
 		return (
@@ -185,6 +210,108 @@ const ApplicantsAnalytics: React.FC = () => {
 				</div>
 			</motion.div>
 
+			{/* Pagination Controls */}
+			<motion.div
+				className={`p-4 rounded-xl border transition-all duration-300 ${
+					theme === "dark"
+						? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+						: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+				}`}
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5, delay: 0.15 }}>
+				<div className='flex items-center justify-between'>
+					<div className='flex items-center space-x-4'>
+						<p
+							className={`text-sm font-medium transition-colors duration-300 ${
+								theme === "dark" ? "text-gray-300" : "text-gray-700"
+							}`}>
+							Showing {startIndex + 1} to{" "}
+							{Math.min(endIndex, typedAllApplicants.length)} of{" "}
+							{typedAllApplicants.length} applicants
+						</p>
+						<p
+							className={`text-xs transition-colors duration-300 ${
+								theme === "dark" ? "text-gray-400" : "text-gray-500"
+							}`}>
+							Page {currentPage} of {totalPages}
+						</p>
+					</div>
+
+					<div className='flex items-center space-x-2'>
+						<button
+							onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+							disabled={currentPage === 1}
+							className={`p-2 rounded-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+								theme === "dark"
+									? "hover:bg-gray-800/60 text-gray-400 hover:text-white disabled:hover:bg-transparent"
+									: "hover:bg-gray-100/80 text-gray-600 hover:text-black disabled:hover:bg-transparent"
+							}`}>
+							<ChevronLeft size={20} />
+						</button>
+
+						<div className='flex items-center space-x-1'>
+							{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+								const pageNum = i + 1;
+								const isActive = pageNum === currentPage;
+								return (
+									<button
+										key={pageNum}
+										onClick={() => setCurrentPage(pageNum)}
+										className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-300 ${
+											isActive
+												? theme === "dark"
+													? "bg-blue-600 text-white"
+													: "bg-blue-600 text-white"
+												: theme === "dark"
+												? "text-gray-400 hover:text-white hover:bg-gray-800/60"
+												: "text-gray-600 hover:text-black hover:bg-gray-100/80"
+										}`}>
+										{pageNum}
+									</button>
+								);
+							})}
+							{totalPages > 5 && (
+								<>
+									<span
+										className={`px-2 ${
+											theme === "dark" ? "text-gray-500" : "text-gray-400"
+										}`}>
+										...
+									</span>
+									<button
+										onClick={() => setCurrentPage(totalPages)}
+										className={`px-3 py-1 rounded-lg text-sm font-medium transition-all duration-300 ${
+											currentPage === totalPages
+												? theme === "dark"
+													? "bg-blue-600 text-white"
+													: "bg-blue-600 text-white"
+												: theme === "dark"
+												? "text-gray-400 hover:text-white hover:bg-gray-800/60"
+												: "text-gray-600 hover:text-black hover:bg-gray-100/80"
+										}`}>
+										{totalPages}
+									</button>
+								</>
+							)}
+						</div>
+
+						<button
+							onClick={() =>
+								setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+							}
+							disabled={currentPage === totalPages}
+							className={`p-2 rounded-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+								theme === "dark"
+									? "hover:bg-gray-800/60 text-gray-400 hover:text-white disabled:hover:bg-transparent"
+									: "hover:bg-gray-100/80 text-gray-600 hover:text-black disabled:hover:bg-transparent"
+							}`}>
+							<ChevronRight size={20} />
+						</button>
+					</div>
+				</div>
+			</motion.div>
+
 			{/* Overview Cards */}
 			<motion.div
 				className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'
@@ -211,8 +338,8 @@ const ApplicantsAnalytics: React.FC = () => {
 						color: "purple",
 					},
 					{
-						name: "Months",
-						value: Object.keys(analytics.monthlyData).length,
+						name: "Days",
+						value: Object.keys(analytics.dailyData).length,
 						icon: Calendar,
 						color: "orange",
 					},
@@ -405,11 +532,11 @@ const ApplicantsAnalytics: React.FC = () => {
 						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
 							theme === "dark" ? "text-white" : "text-black"
 						}`}>
-						Applications Over Time
+						Applications Over Time (Daily)
 					</h3>
 					<div className='h-80'>
 						<ResponsiveContainer width='100%' height='100%'>
-							<AreaChart data={analytics.monthlyChartData}>
+							<AreaChart data={analytics.dailyChartData}>
 								<CartesianGrid
 									strokeDasharray='3 3'
 									stroke={theme === "dark" ? "#374151" : "#E5E7EB"}
@@ -457,6 +584,90 @@ const ApplicantsAnalytics: React.FC = () => {
 					</div>
 				</motion.div>
 			</div>
+
+			{/* Paginated Applicants List */}
+			<motion.div
+				className={`p-6 rounded-xl border transition-all duration-300 ${
+					theme === "dark"
+						? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
+						: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
+				}`}
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				transition={{ duration: 0.5, delay: 0.5 }}>
+				<h3
+					className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+						theme === "dark" ? "text-white" : "text-black"
+					}`}>
+					Current Page Applicants
+				</h3>
+				<div className='space-y-3'>
+					{applicants.length === 0 ? (
+						<p
+							className={`text-center py-8 transition-colors duration-300 ${
+								theme === "dark" ? "text-gray-400" : "text-gray-600"
+							}`}>
+							No applicants on this page
+						</p>
+					) : (
+						applicants.map((applicant, index) => (
+							<div
+								key={applicant._id}
+								className={`p-4 rounded-lg border transition-all duration-300 hover:scale-[1.02] ${
+									theme === "dark"
+										? "bg-gray-800/50 border-gray-700/50 hover:border-gray-600/70"
+										: "bg-white/60 border-gray-200/60 hover:border-gray-300/80"
+								}`}>
+								<div className='flex items-center justify-between'>
+									<div className='flex items-center space-x-4'>
+										<div
+											className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
+												theme === "dark"
+													? "bg-gray-700/60 text-gray-300"
+													: "bg-gray-100/80 text-gray-700"
+											}`}>
+											{applicant.firstName[0]}
+											{applicant.lastName[0]}
+										</div>
+										<div>
+											<p
+												className={`text-sm font-medium transition-colors duration-300 ${
+													theme === "dark" ? "text-white" : "text-black"
+												}`}>
+												{applicant.firstName} {applicant.lastName}
+											</p>
+											<p
+												className={`text-xs transition-colors duration-300 ${
+													theme === "dark" ? "text-gray-400" : "text-gray-600"
+												}`}>
+												{applicant.email} • {applicant.selectedTeam}
+											</p>
+										</div>
+									</div>
+									<div className='flex items-center space-x-2'>
+										<span
+											className={`px-2 py-1 rounded-full text-xs font-medium ${
+												theme === "dark"
+													? "bg-blue-900/30 text-blue-300"
+													: "bg-blue-100/80 text-blue-700"
+											}`}>
+											{applicant.faculty}
+										</span>
+										<span
+											className={`px-2 py-1 rounded-full text-xs font-medium ${
+												theme === "dark"
+													? "bg-green-900/30 text-green-300"
+													: "bg-green-100/80 text-green-700"
+											}`}>
+											{applicant.academicYear}
+										</span>
+									</div>
+								</div>
+							</div>
+						))
+					)}
+				</div>
+			</motion.div>
 
 			{/* Original Progress Bar Charts */}
 			<div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>
@@ -652,24 +863,24 @@ const ApplicantsAnalytics: React.FC = () => {
 						className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
 							theme === "dark" ? "text-white" : "text-black"
 						}`}>
-						Applications Over Time (Progress View)
+						Applications Over Time (Daily Progress View)
 					</h3>
-					<div className='space-y-3'>
-						{Object.entries(analytics.monthlyData)
+					<div className='space-y-3 max-h-96 overflow-y-auto'>
+						{Object.entries(analytics.dailyData)
 							.sort(([a], [b]) => new Date(a).getTime() - new Date(b).getTime())
-							.map(([month, count]) => {
+							.map(([day, count]) => {
 								const maxCount = Math.max(
-									...Object.values(analytics.monthlyData)
+									...Object.values(analytics.dailyData)
 								);
 								const percentage = (count / maxCount) * 100;
 								return (
-									<div key={month} className='space-y-2'>
+									<div key={day} className='space-y-2'>
 										<div className='flex justify-between items-center'>
 											<span
 												className={`text-sm font-medium transition-colors duration-300 ${
 													theme === "dark" ? "text-gray-300" : "text-gray-700"
 												}`}>
-												{month}
+												{day}
 											</span>
 											<span
 												className={`text-sm font-bold transition-colors duration-300 ${

@@ -112,9 +112,25 @@ export const useGetApplicants = () => {
 	return useQuery({
 		queryKey: ["applicants"],
 		queryFn: async (): Promise<Applicant[]> => {
-			const response = await apiRepo.GET(endPoints.applicants);
-			return response.data;
+			// Add limit parameter to fetch all applicants
+			const response = await apiRepo.GET(`${endPoints.applicants}?limit=1000`);
+			return response.data as Applicant[];
 		},
+	});
+};
+
+export const useGetAllApplicantsForAnalytics = () => {
+	return useQuery({
+		queryKey: ["applicants-analytics"],
+		queryFn: async (): Promise<Applicant[]> => {
+			// Fetch all applicants without any limit for analytics
+			const response = await apiRepo.GET(
+				`${endPoints.applicants}?limit=0&skip=0`
+			);
+			return response.data as Applicant[];
+		},
+		staleTime: 5 * 60 * 1000, // 5 minutes
+		cacheTime: 10 * 60 * 1000, // 10 minutes
 	});
 };
 

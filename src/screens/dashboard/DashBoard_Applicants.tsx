@@ -19,6 +19,7 @@ import {
 	ExternalLink,
 	UserPlus,
 	BarChart3,
+	Download,
 } from "lucide-react";
 import { useTheme } from "../../shared/contexts/ThemeContext";
 import {
@@ -136,6 +137,81 @@ const DashBoard_Applicants: React.FC = () => {
 		}
 	};
 
+	// CSV Download functionality with Arabic data support
+	const downloadCSV = () => {
+		const csvData = filteredApplicants.map((applicant) => ({
+			"First Name": applicant.firstName,
+			"Last Name": applicant.lastName,
+			Email: applicant.email,
+			Phone: applicant.phone,
+			Gender: applicant.gender,
+			Faculty: applicant.faculty,
+			"Academic Year": applicant.academicYear,
+			"Selected Team": applicant.selectedTeam,
+			Skills: applicant.skills.join(", "),
+			"Relevant Experience": applicant.relevantExperience || "",
+			Facebook: applicant.facebook || "",
+			Instagram: applicant.instagram || "",
+			LinkedIn: applicant.linkedin || "",
+			"Date of Birth": new Date(applicant.dateOfBirth).toLocaleDateString(
+				"ar-EG",
+				{
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+				}
+			),
+			Status: getStatusText(applicant.status),
+			"Applied Date": new Date(applicant.createdAt).toLocaleDateString(
+				"ar-EG",
+				{
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+				}
+			),
+		}));
+
+		// Convert to CSV string with proper Arabic text support
+		const headers = Object.keys(csvData[0] || {});
+		const csvContent = [
+			headers.join(","),
+			...csvData.map((row) =>
+				headers
+					.map((header) => {
+						const value = row[header as keyof typeof row];
+						// Escape commas, quotes, and newlines in CSV, handle Arabic text properly
+						return typeof value === "string" &&
+							(value.includes(",") ||
+								value.includes('"') ||
+								value.includes("\n") ||
+								value.includes("\r"))
+							? `"${value.replace(/"/g, '""')}"`
+							: value;
+					})
+					.join(",")
+			),
+		].join("\n");
+
+		// Add UTF-8 BOM for proper Arabic text support in Excel
+		const BOM = "\uFEFF";
+		const csvWithBOM = BOM + csvContent;
+
+		// Create and download file with proper UTF-8 encoding
+		const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8;" });
+		const link = document.createElement("a");
+		const url = URL.createObjectURL(blob);
+		link.setAttribute("href", url);
+		link.setAttribute(
+			"download",
+			`applicants_${new Date().toISOString().split("T")[0]}.csv`
+		);
+		link.style.visibility = "hidden";
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	};
+
 	return (
 		<div className='space-y-6 p-4 sm:p-6 lg:p-8'>
 			{/* Header */}
@@ -159,6 +235,17 @@ const DashBoard_Applicants: React.FC = () => {
 						</p>
 					</div>
 					<div className='flex items-center space-x-3'>
+						<button
+							onClick={downloadCSV}
+							disabled={filteredApplicants.length === 0}
+							className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed ${
+								theme === "dark"
+									? "bg-green-600/20 text-green-400 hover:bg-green-600/30 hover:text-green-300 border border-green-500/30"
+									: "bg-green-50 text-green-600 hover:bg-green-100 hover:text-green-700 border border-green-200"
+							}`}>
+							<Download size={18} />
+							<span>Download CSV</span>
+						</button>
 						<Link
 							to='/dashboard/applicants/analytics'
 							className={`inline-flex items-center space-x-2 px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 ${
