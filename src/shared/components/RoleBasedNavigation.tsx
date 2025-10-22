@@ -59,7 +59,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 		// Main navigation - always visible
 		{
 			name: "Dashboard",
-			href: "/dashboard",
+			href: "/dashboard/applicants",
 			icon: LayoutDashboard,
 			permission: null,
 			category: "main",

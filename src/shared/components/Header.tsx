@@ -67,7 +67,7 @@ const Header: React.FC = () => {
 						<>
 							<motion.div whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
 								<Link
-									to='/dashboard'
+									to='/dashboard/applicants'
 									className={`text-sm font-medium transition-all duration-300 ${
 										theme === "dark"
 											? "text-gray-300 hover:text-white"
