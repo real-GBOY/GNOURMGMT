@@ -54,17 +54,43 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 		viewUnverifiedPersonPermission: Permissions.ViewUnverifiedPerson,
 	});
 
+	// Check if user is admin (President role has all permissions)
+	const isAdmin = user?.role?.key === "President";
+
 	// Define navigation items with categories and permissions
 	const navigationItems: NavigationItem[] = [
 		// Main navigation - always visible
-		{
-			name: "Dashboard",
-			href: "/dashboard/applicants",
-			icon: LayoutDashboard,
-			permission: null,
-			category: "main",
-			description: "Overview and statistics",
-		},
+		...(isAdmin
+			? [
+					// Admin users see two dashboard links
+					{
+						name: "Dashboard Applicants",
+						href: "/dashboard/applicants",
+						icon: LayoutDashboard,
+						permission: null,
+						category: "main",
+						description: "Applicants overview and statistics",
+					},
+					{
+						name: "Dashboard Normal",
+						href: "/dashboard",
+						icon: LayoutDashboard,
+						permission: null,
+						category: "main",
+						description: "Normal dashboard overview",
+					},
+			  ]
+			: [
+					// Regular users see single dashboard link
+					{
+						name: "Dashboard",
+						href: "/dashboard/applicants",
+						icon: LayoutDashboard,
+						permission: null,
+						category: "main",
+						description: "Overview and statistics",
+					},
+			  ]),
 		{
 			name: "Profile",
 			href: "/dashboard/profile",

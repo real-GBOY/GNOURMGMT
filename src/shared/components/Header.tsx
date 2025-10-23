@@ -10,8 +10,11 @@ import { AnimatedThemeToggler } from "../../components/magicui/animated-theme-to
 
 const Header: React.FC = () => {
 	const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-	const { theme, toggleTheme } = useTheme();
+	const { theme } = useTheme();
 	const { isAuthenticated, user, logout } = useAuth();
+
+	// Check if user is admin (President role has all permissions)
+	const isAdmin = user?.role?.key === "President";
 
 	const closeMobileMenu = () => {
 		setIsMenuOpen(false);
@@ -63,19 +66,54 @@ const Header: React.FC = () => {
 				{/* Centered Desktop Navigation */}
 				<div className='hidden md:flex items-center space-x-6 mx-auto'>
 					{isAuthenticated ? (
-						// Logged in: Dashboard and Developers
+						// Logged in: Dashboard links and Developers
 						<>
-							<motion.div whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
-								<Link
-									to='/dashboard/applicants'
-									className={`text-sm font-medium transition-all duration-300 ${
-										theme === "dark"
-											? "text-gray-300 hover:text-white"
-											: "text-gray-600 hover:text-black"
-									}`}>
-									Dashboard
-								</Link>
-							</motion.div>
+							{isAdmin ? (
+								// Admin users see two dashboard links
+								<>
+									<motion.div
+										whileHover={{ y: -2 }}
+										transition={{ duration: 0.2 }}>
+										<Link
+											to='/dashboard/applicants'
+											className={`text-sm font-medium transition-all duration-300 ${
+												theme === "dark"
+													? "text-gray-300 hover:text-white"
+													: "text-gray-600 hover:text-black"
+											}`}>
+											Dashboard Applicants
+										</Link>
+									</motion.div>
+									<motion.div
+										whileHover={{ y: -2 }}
+										transition={{ duration: 0.2 }}>
+										<Link
+											to='/dashboard'
+											className={`text-sm font-medium transition-all duration-300 ${
+												theme === "dark"
+													? "text-gray-300 hover:text-white"
+													: "text-gray-600 hover:text-black"
+											}`}>
+											Control Panel
+										</Link>
+									</motion.div>
+								</>
+							) : (
+								// Regular users see single dashboard link
+								<motion.div
+									whileHover={{ y: -2 }}
+									transition={{ duration: 0.2 }}>
+									<Link
+										to='/dashboard/applicants'
+										className={`text-sm font-medium transition-all duration-300 ${
+											theme === "dark"
+												? "text-gray-300 hover:text-white"
+												: "text-gray-600 hover:text-black"
+										}`}>
+										Dashboard
+									</Link>
+								</motion.div>
+							)}
 							<motion.div whileHover={{ y: -2 }} transition={{ duration: 0.2 }}>
 								<Link
 									to='/developers'
@@ -253,29 +291,68 @@ const Header: React.FC = () => {
 							{/* Main Navigation */}
 							<div className='space-y-3'>
 								{isAuthenticated ? (
-									// Logged in: Dashboard and Developers
+									// Logged in: Dashboard links and Developers
 									<>
+										{isAdmin ? (
+											// Admin users see two dashboard links
+											<>
+												<motion.div
+													whileHover={{ x: 5 }}
+													initial={{ opacity: 0, x: -10 }}
+													animate={{ opacity: 1, x: 0 }}
+													transition={{ duration: 0.3, delay: 0.2 }}>
+													<Link
+														to='/dashboard/applicants'
+														onClick={closeMobileMenu}
+														className={`block text-base font-medium py-2 transition-all duration-300 ${
+															theme === "dark"
+																? "text-gray-300 hover:text-white"
+																: "text-gray-700 hover:text-black"
+														}`}>
+														Dashboard Applicants
+													</Link>
+												</motion.div>
+												<motion.div
+													whileHover={{ x: 5 }}
+													initial={{ opacity: 0, x: -10 }}
+													animate={{ opacity: 1, x: 0 }}
+													transition={{ duration: 0.3, delay: 0.25 }}>
+													<Link
+														to='/dashboard'
+														onClick={closeMobileMenu}
+														className={`block text-base font-medium py-2 transition-all duration-300 ${
+															theme === "dark"
+																? "text-gray-300 hover:text-white"
+																: "text-gray-700 hover:text-black"
+														}`}>
+														Dashboard Normal
+													</Link>
+												</motion.div>
+											</>
+										) : (
+											// Regular users see single dashboard link
+											<motion.div
+												whileHover={{ x: 5 }}
+												initial={{ opacity: 0, x: -10 }}
+												animate={{ opacity: 1, x: 0 }}
+												transition={{ duration: 0.3, delay: 0.2 }}>
+												<Link
+													to='/dashboard/applicants'
+													onClick={closeMobileMenu}
+													className={`block text-base font-medium py-2 transition-all duration-300 ${
+														theme === "dark"
+															? "text-gray-300 hover:text-white"
+															: "text-gray-700 hover:text-black"
+													}`}>
+													Dashboard
+												</Link>
+											</motion.div>
+										)}
 										<motion.div
 											whileHover={{ x: 5 }}
 											initial={{ opacity: 0, x: -10 }}
 											animate={{ opacity: 1, x: 0 }}
-											transition={{ duration: 0.3, delay: 0.2 }}>
-											<Link
-												to='/dashboard'
-												onClick={closeMobileMenu}
-												className={`block text-base font-medium py-2 transition-all duration-300 ${
-													theme === "dark"
-														? "text-gray-300 hover:text-white"
-														: "text-gray-700 hover:text-black"
-												}`}>
-												Dashboard
-											</Link>
-										</motion.div>
-										<motion.div
-											whileHover={{ x: 5 }}
-											initial={{ opacity: 0, x: -10 }}
-											animate={{ opacity: 1, x: 0 }}
-											transition={{ duration: 0.3, delay: 0.25 }}>
+											transition={{ duration: 0.3, delay: 0.3 }}>
 											<Link
 												to='/developers'
 												onClick={closeMobileMenu}
