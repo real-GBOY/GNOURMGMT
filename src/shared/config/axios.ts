@@ -4,7 +4,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 
 const apiClient = axios.create({
-	baseURL: "https://gnour-back.vercel.app/api",
+	baseURL: "https://gnour-back.vercel.app/",
 	timeout: 10000,
 	headers: {
 		"Content-Type": "application/json",
