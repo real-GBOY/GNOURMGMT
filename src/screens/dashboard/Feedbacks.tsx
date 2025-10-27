@@ -293,99 +293,135 @@ const Feedbacks: React.FC = () => {
 			</div>
 
 			{/* Grid */}
-			<motion.div
-				initial={{ opacity: 0, y: 20 }}
-				animate={{ opacity: 1, y: 0 }}
-				transition={{ duration: 0.5, delay: 0.1 }}
-				className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-				{filtered.map((f, index) => (
-					<motion.div
-						key={f._id}
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5, delay: 0.05 * index }}
-						className={`group relative p-5 rounded-xl transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
-							theme === "dark"
-								? "bg-gray-900/60 backdrop-blur-xl border border-gray-800/50"
-								: "bg-white/60 backdrop-blur-xl border border-gray-200/50"
+			{filtered.length === 0 ? (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5 }}
+					className={`flex flex-col items-center justify-center py-16 px-4 rounded-xl border ${
+						theme === "dark"
+							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50"
+							: "bg-white/40 backdrop-blur-2xl border-gray-200/60"
+					}`}>
+					<div
+						className={`p-4 rounded-full mb-4 ${
+							theme === "dark" ? "bg-blue-600/20" : "bg-blue-100"
 						}`}>
-						<div className='flex items-start justify-between mb-3'>
-							<div className='flex items-center space-x-3'>
-								<div
-									className={`p-2.5 rounded-lg ${
-										theme === "dark" ? "bg-blue-600/20" : "bg-blue-100"
-									}`}>
-									<MessageCircleMore
-										className={`${
-											theme === "dark" ? "text-blue-400" : "text-blue-600"
-										} w-5 h-5`}
-									/>
-								</div>
-								<div>
-									<h3
-										className={`font-semibold ${
-											theme === "dark" ? "text-white" : "text-black"
+						<MessageCircleMore
+							size={48}
+							className={theme === "dark" ? "text-blue-400" : "text-blue-600"}
+						/>
+					</div>
+					<h3
+						className={`text-xl font-semibold mb-2 transition-colors duration-300 ${
+							theme === "dark" ? "text-white" : "text-black"
+						}`}>
+						No feedbacks yet
+					</h3>
+					<p
+						className={`text-sm transition-colors duration-300 ${
+							theme === "dark" ? "text-gray-400" : "text-gray-600"
+						}`}>
+						{searchTerm
+							? "No feedbacks match your search criteria"
+							: "Get started by creating your first feedback"}
+					</p>
+				</motion.div>
+			) : (
+				<motion.div
+					initial={{ opacity: 0, y: 20 }}
+					animate={{ opacity: 1, y: 0 }}
+					transition={{ duration: 0.5, delay: 0.1 }}
+					className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+					{filtered.map((f, index) => (
+						<motion.div
+							key={f._id}
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ duration: 0.5, delay: 0.05 * index }}
+							className={`group relative p-5 rounded-xl transition-all duration-300 hover:shadow-xl hover:scale-[1.02] ${
+								theme === "dark"
+									? "bg-gray-900/60 backdrop-blur-xl border border-gray-800/50"
+									: "bg-white/60 backdrop-blur-xl border border-gray-200/50"
+							}`}>
+							<div className='flex items-start justify-between mb-3'>
+								<div className='flex items-center space-x-3'>
+									<div
+										className={`p-2.5 rounded-lg ${
+											theme === "dark" ? "bg-blue-600/20" : "bg-blue-100"
 										}`}>
-										{f.title}
-									</h3>
-									<div className='text-xs'>
-										<span
-											className={`px-2 py-0.5 rounded-full ${
-												theme === "dark"
-													? "bg-gray-800 text-gray-300"
-													: "bg-gray-100 text-gray-700"
+										<MessageCircleMore
+											className={`${
+												theme === "dark" ? "text-blue-400" : "text-blue-600"
+											} w-5 h-5`}
+										/>
+									</div>
+									<div>
+										<h3
+											className={`font-semibold ${
+												theme === "dark" ? "text-white" : "text-black"
 											}`}>
-											{f.category}
-										</span>
+											{f.title}
+										</h3>
+										<div className='text-xs'>
+											<span
+												className={`px-2 py-0.5 rounded-full ${
+													theme === "dark"
+														? "bg-gray-800 text-gray-300"
+														: "bg-gray-100 text-gray-700"
+												}`}>
+												{f.category}
+											</span>
+										</div>
 									</div>
 								</div>
-							</div>
-							<div className='flex items-center space-x-1'>
-								<button
-									className={`p-2 rounded-lg ${
-										theme === "dark"
-											? "hover:bg-gray-800 text-gray-400 hover:text-white"
-											: "hover:bg-gray-100 text-gray-600 hover:text-black"
-									}`}
-									title='View'
-									onClick={() => setViewingFeedbackId(f._id)}>
-									<Eye size={16} />
-								</button>
-								<PermissionGate permission={Permissions.EditFeedback}>
+								<div className='flex items-center space-x-1'>
 									<button
-										onClick={() => handleEdit(f)}
 										className={`p-2 rounded-lg ${
 											theme === "dark"
 												? "hover:bg-gray-800 text-gray-400 hover:text-white"
 												: "hover:bg-gray-100 text-gray-600 hover:text-black"
 										}`}
-										title='Edit'>
-										<Edit size={16} />
+										title='View'
+										onClick={() => setViewingFeedbackId(f._id)}>
+										<Eye size={16} />
 									</button>
-								</PermissionGate>
-								<PermissionGate permission={Permissions.DeleteFeedback}>
-									<button
-										onClick={() => handleDelete(f._id)}
-										className={`p-2 rounded-lg ${
-											theme === "dark"
-												? "hover:bg-red-900/30 text-red-400 hover:text-red-300"
-												: "hover:bg-red-50 text-red-600 hover:text-red-700"
-										}`}
-										title='Delete'>
-										<Trash2 size={16} />
-									</button>
-								</PermissionGate>
+									<PermissionGate permission={Permissions.EditFeedback}>
+										<button
+											onClick={() => handleEdit(f)}
+											className={`p-2 rounded-lg ${
+												theme === "dark"
+													? "hover:bg-gray-800 text-gray-400 hover:text-white"
+													: "hover:bg-gray-100 text-gray-600 hover:text-black"
+											}`}
+											title='Edit'>
+											<Edit size={16} />
+										</button>
+									</PermissionGate>
+									<PermissionGate permission={Permissions.DeleteFeedback}>
+										<button
+											onClick={() => handleDelete(f._id)}
+											className={`p-2 rounded-lg ${
+												theme === "dark"
+													? "hover:bg-red-900/30 text-red-400 hover:text-red-300"
+													: "hover:bg-red-50 text-red-600 hover:text-red-700"
+											}`}
+											title='Delete'>
+											<Trash2 size={16} />
+										</button>
+									</PermissionGate>
+								</div>
 							</div>
-						</div>
-						<p
-							className={`${
-								theme === "dark" ? "text-gray-300" : "text-gray-700"
-							} text-sm line-clamp-3`}>
-							{f.content}
-						</p>
-					</motion.div>
-				))}
-			</motion.div>
+							<p
+								className={`${
+									theme === "dark" ? "text-gray-300" : "text-gray-700"
+								} text-sm line-clamp-3`}>
+								{f.content}
+							</p>
+						</motion.div>
+					))}
+				</motion.div>
+			)}
 
 			{/* Create Modal */}
 			<Modal

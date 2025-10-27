@@ -48,7 +48,7 @@ const Signup: React.FC = () => {
 	} = useQuery({
 		queryKey: reactQueryKeys.teams.lists(),
 		queryFn: async () => {
-			const response = await apiRepo.GET(endPoints.teams);
+			const response = await apiRepo.GET(endPoints.teams.base);
 			return response || [];
 		},
 	});
@@ -76,7 +76,7 @@ const Signup: React.FC = () => {
 				throw new Error("No file uploaded");
 			}
 
-			const response = await apiRepo.POST(endPoints.register, formData);
+			const response = await apiRepo.POST(endPoints.auth.register, formData);
 			return response;
 		},
 		onSuccess: (data) => {

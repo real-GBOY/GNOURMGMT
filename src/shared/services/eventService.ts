@@ -12,7 +12,7 @@ export const useEvents = () => {
 	return useQuery({
 		queryKey: reactQueryKeys.events.lists(),
 		queryFn: async (): Promise<Event[]> => {
-			const response = await apiRepo.GET(endPoints.events);
+			const response = await apiRepo.GET(endPoints.events.base);
 			// The API returns events wrapped in { success: true, data: [...] }
 			return response?.data || [];
 		},
@@ -26,7 +26,7 @@ export const useEvent = (id: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.events.detail(id),
 		queryFn: async (): Promise<Event> => {
-			const response = await apiRepo.GET(endPoints.event(id));
+			const response = await apiRepo.GET(endPoints.events.event(id));
 			// The API returns event wrapped in { success: true, data: {...} }
 			return response?.data;
 		},
@@ -56,7 +56,7 @@ export const useCreateEvent = () => {
 				formData.append("file", data.file);
 			}
 
-			const response = await apiRepo.POST(endPoints.events, formData, {
+			const response = await apiRepo.POST(endPoints.events.base, formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -104,11 +104,15 @@ export const useUpdateEvent = () => {
 				formData.append("file", data.file);
 			}
 
-			const response = await apiRepo.PATCH(endPoints.event(id), formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
+			const response = await apiRepo.PATCH(
+				endPoints.events.event(id),
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
 			return response?.data;
 		},
 		onSuccess: (_, { id }) => {
@@ -135,7 +139,7 @@ export const useDeleteEvent = () => {
 
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.event(id));
+			await apiRepo.DELETE(endPoints.events.event(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -168,7 +172,7 @@ export const useUploadFileToEvent = () => {
 			formData.append("file", file);
 
 			const response = await apiRepo.POST(
-				endPoints.uploadEventFile(id),
+				endPoints.events.uploadFile(id),
 				formData,
 				{
 					headers: {
@@ -202,7 +206,7 @@ export const useRemoveFileFromEvent = () => {
 
 	return useMutation({
 		mutationFn: async (id: string): Promise<Event> => {
-			const response = await apiRepo.DELETE(endPoints.removeEventFile(id));
+			const response = await apiRepo.DELETE(endPoints.events.removeFile(id));
 			return response?.data;
 		},
 		onSuccess: (_, id) => {
@@ -235,7 +239,7 @@ export const useAddGuestsToEvent = () => {
 			eventId: string;
 			guestIds: string[];
 		}): Promise<Event> => {
-			const response = await apiRepo.POST(endPoints.addGuestsToEvent(eventId), {
+			const response = await apiRepo.POST(endPoints.events.addGuests(eventId), {
 				guestIds,
 			});
 			return response?.data;
@@ -270,9 +274,12 @@ export const useRemoveGuestsFromEvent = () => {
 			eventId: string;
 			guestIds: string[];
 		}): Promise<Event> => {
-			const response = await apiRepo.DELETE(endPoints.removeGuestsFromEvent(eventId), {
-				guestIds,
-			});
+			const response = await apiRepo.DELETE(
+				endPoints.events.removeGuests(eventId),
+				{
+					guestIds,
+				}
+			);
 			return response?.data;
 		},
 		onSuccess: (_, { eventId }) => {

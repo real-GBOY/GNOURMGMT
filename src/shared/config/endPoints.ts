@@ -1,79 +1,97 @@
 /** @format */
 
 const endPoints = {
-	login: "/auth/login",
-	register: "/auth/signup",
-	teams: "/teams",
-	team: (id: string) => `/teams/${id}`,
-	teamMembers: (id: string) => `/teams/${id}/members`,
-	tasks: "/tasks",
-	task: (id: string) => `/tasks/${id}`,
-	uploadFile: (id: string) => `/tasks/${id}/upload-file`,
-	removeFile: (id: string, fileId: string) => `/tasks/${id}/files/${fileId}`,
-	taskAssignment: (id: string) => `/tasks/${id}/assign`,
-	events: "/events",
-	event: (id: string) => `/events/${id}`,
-	uploadEventFile: (id: string) => `/events/${id}/upload-file`,
-	removeEventFile: (id: string) => `/events/${id}/file`,
-	users: "/users",
-	user: (id: string) => `/users/${id}`,
-	unverifiedUsers: "/users/unverified",
-	verifyUser: (id: string) => `/users/verify/${id}`,
-	assignRole: (id: string) => `/users/assign-role/${id}`,
-	profile: "/auth/profile",
-	profileById: (id: string) => `/auth/profile/${id}`,
-	changePassword: "/auth/profile/password",
-	roles: "/roles",
-	attendance: "/attendance",
-	attendanceById: (id: string) => `/attendance/${id}`,
-	attendanceByUser: (userId: string) => `/attendance/user/${userId}`,
-	attendanceByEvent: (eventId: string) => `/attendance/event/${eventId}`,
-	attendanceByUserAndEvent: (userId: string, eventId: string) =>
-		`/attendance/user/${userId}/event/${eventId}`,
-	verifyAttendance: (id: string) => {
-		console.log("Constructing verify attendance endpoint with ID:", id);
-		const endpoint = `/attendance/${id}/verify`;
-		console.log("Constructed endpoint:", endpoint);
-		return endpoint;
+	auth: {
+		login: "/auth/login",
+		register: "/auth/signup",
+		profile: "/auth/profile",
+		profileById: (id: string) => `/auth/profile/${id}`,
+		changePassword: "/auth/profile/password",
 	},
-	addFeedback: (id: string) => `/attendance/${id}/feedback`,
-	addGuestsToEvent: (id: string) => `/events/${id}/guests`,
-	removeGuestsFromEvent: (id: string) => `/events/${id}/guests`,
 
-	// Feedback endpoints
-	feedback: "/feedback",
-	feedbackById: (id: string) => `/feedback/${id}`,
-	feedbackByUser: (userId: string) => `/feedback/user/${userId}`,
-	feedbackByCategory: (category: string) => `/feedback/category/${category}`,
-	feedbackByTask: (taskId: string) => `/feedback/task/${taskId}`,
-	feedbackByMeeting: (eventId: string) => `/feedback/meeting/${eventId}`,
-	feedbackByAttendance: (attendanceId: string) =>
-		`/feedback/attendance/${attendanceId}`,
+	users: {
+		base: "/users",
+		user: (id: string) => `/users/${id}`,
+		unverified: "/users/unverified",
+		verify: (id: string) => `/users/verify/${id}`,
+		assignRole: (id: string) => `/users/assign-role/${id}`,
+	},
 
-	// Achievement endpoints
-	achievements: "/achievements",
-	achievement: (id: string) => `/achievements/${id}`,
-	achievementStats: "/achievements/stats",
-	achievementByUser: (userId: string) => `/achievements/user/${userId}`,
-	assignAchievement: "/achievements/assign",
+	roles: {
+		base: "/roles",
+	},
 
-	uploadSupportingDocument: (id: string) =>
-		`/achievements/${id}/supporting-document`,
-	uploadEvidenceFile: (id: string) => `/achievements/${id}/evidence-file`,
-	removeSupportingDocument: (id: string, fileIndex: number) =>
-		`/achievements/${id}/file/supporting/${fileIndex}`,
-	removeCertificateFile: (id: string, fileIndex: number) =>
-		`/achievements/${id}/file/certificate/${fileIndex}`,
-	removeEvidenceFile: (id: string, fileIndex: number) =>
-		`/achievements/${id}/file/evidence/${fileIndex}`,
+	teams: {
+		base: "/teams",
+		team: (id: string) => `/teams/${id}`,
+		members: (id: string) => `/teams/${id}/members`,
+	},
 
-	// Applications endpoints
-	applications: "/applications",
-	application: (id: string) => `/applications/${id}`,
+	tasks: {
+		base: "/tasks",
+		task: (id: string) => `/tasks/${id}`,
+		assign: (id: string) => `/tasks/${id}/assign`,
+		uploadFile: (id: string) => `/tasks/${id}/upload-file`,
+		removeFile: (id: string, fileId: string) => `/tasks/${id}/files/${fileId}`,
+	},
 
-	// Applicants endpoints (align with backend router)
-	applicants: "/recruitment/applicants",
-	applicant: (id: string) => `/recruitment/applicants/${id}`,
+	events: {
+		base: "/events",
+		event: (id: string) => `/events/${id}`,
+		uploadFile: (id: string) => `/events/${id}/upload-file`,
+		removeFile: (id: string) => `/events/${id}/file`,
+		addGuests: (id: string) => `/events/${id}/guests`,
+		removeGuests: (id: string) => `/events/${id}/guests`,
+	},
+
+	attendance: {
+		base: "/attendance",
+		byId: (id: string) => `/attendance/${id}`,
+		byUser: (userId: string) => `/attendance/user/${userId}`,
+		byEvent: (eventId: string) => `/attendance/event/${eventId}`,
+		byUserAndEvent: (userId: string, eventId: string) =>
+			`/attendance/user/${userId}/event/${eventId}`,
+		verify: (id: string) => `/attendance/${id}/verify`,
+		addFeedback: (id: string) => `/attendance/${id}/feedback`,
+	},
+
+	feedback: {
+		base: "/feedback",
+		byId: (id: string) => `/feedback/${id}`,
+		byUser: (userId: string) => `/feedback/user/${userId}`,
+		byCategory: (category: string) => `/feedback/category/${category}`,
+		byTask: (taskId: string) => `/feedback/task/${taskId}`,
+		byMeeting: (eventId: string) => `/feedback/meeting/${eventId}`,
+		byAttendance: (attendanceId: string) =>
+			`/feedback/attendance/${attendanceId}`,
+	},
+
+	achievements: {
+		base: "/achievements",
+		achievement: (id: string) => `/achievements/${id}`,
+		stats: "/achievements/stats",
+		byUser: (userId: string) => `/achievements/user/${userId}`,
+		assign: "/achievements/assign",
+		uploadSupportingDocument: (id: string) =>
+			`/achievements/${id}/supporting-document`,
+		uploadEvidenceFile: (id: string) => `/achievements/${id}/evidence-file`,
+		removeSupportingDocument: (id: string, fileIndex: number) =>
+			`/achievements/${id}/file/supporting/${fileIndex}`,
+		removeCertificateFile: (id: string, fileIndex: number) =>
+			`/achievements/${id}/file/certificate/${fileIndex}`,
+		removeEvidenceFile: (id: string, fileIndex: number) =>
+			`/achievements/${id}/file/evidence/${fileIndex}`,
+	},
+
+	applications: {
+		base: "/applications",
+		application: (id: string) => `/applications/${id}`,
+	},
+
+	applicants: {
+		base: "/recruitment/applicants",
+		applicant: (id: string) => `/recruitment/applicants/${id}`,
+	},
 };
 
 export default endPoints;

@@ -13,7 +13,7 @@ export const useUnverifiedUsers = (enabled: boolean = true) => {
 		queryKey: reactQueryKeys.users.unverified(),
 		queryFn: async (): Promise<User[]> => {
 			console.log("🔍 [useUnverifiedUsers] Fetching unverified users...");
-			const response = await apiRepo.GET(endPoints.unverifiedUsers);
+			const response = await apiRepo.GET(endPoints.users.unverified);
 			console.log("🔍 [useUnverifiedUsers] Raw API response:", response);
 
 			// Check if response has a data property (common API pattern)
@@ -52,7 +52,7 @@ export const useRoles = () => {
 		queryKey: reactQueryKeys.roles.lists(),
 		queryFn: async (): Promise<Role[]> => {
 			try {
-				const response = await apiRepo.GET(endPoints.roles);
+				const response = await apiRepo.GET(endPoints.roles.base);
 
 				// Handle different response formats
 				if (response && typeof response === "object") {
@@ -101,7 +101,7 @@ export const useVerifyUser = () => {
 			id: string;
 			data: VerifyUserData;
 		}): Promise<User> => {
-			const response = await apiRepo.PATCH(endPoints.verifyUser(id), data);
+			const response = await apiRepo.PATCH(endPoints.users.verify(id), data);
 			return response;
 		},
 		onSuccess: () => {
@@ -131,7 +131,10 @@ export const useAssignRole = () => {
 			id: string;
 			data: AssignRoleData;
 		}): Promise<User> => {
-			const response = await apiRepo.PATCH(endPoints.assignRole(id), data);
+			const response = await apiRepo.PATCH(
+				endPoints.users.assignRole(id),
+				data
+			);
 			return response;
 		},
 		onSuccess: () => {
@@ -161,7 +164,10 @@ export const useVerifyUserWithRole = () => {
 			userId: string;
 			data: { isVerified: boolean; role: string };
 		}): Promise<User> => {
-			const response = await apiRepo.PATCH(endPoints.verifyUser(userId), data);
+			const response = await apiRepo.PATCH(
+				endPoints.users.verify(userId),
+				data
+			);
 			return response;
 		},
 		onSuccess: () => {
@@ -184,7 +190,7 @@ export const useUsers = (enabled: boolean = true) => {
 	return useQuery({
 		queryKey: reactQueryKeys.users.lists(),
 		queryFn: async (): Promise<User[]> => {
-			const response = await apiRepo.GET(endPoints.users);
+			const response = await apiRepo.GET(endPoints.users.base);
 			// Check if response has a data property (common API pattern)
 			if (response && typeof response === "object" && "data" in response) {
 				return response.data || [];
@@ -292,7 +298,7 @@ export const useUpdateTaskAssignment = () => {
 			taskId: string;
 			userIds: string[];
 		}): Promise<{ success: boolean; message?: string }> => {
-			const response = await apiRepo.PATCH(endPoints.task(taskId), {
+			const response = await apiRepo.PATCH(endPoints.tasks.task(taskId), {
 				assignedTo: userIds,
 			});
 			return response;
@@ -319,7 +325,7 @@ export const useCurrentUserProfile = (enabled: boolean = true) => {
 	return useQuery({
 		queryKey: reactQueryKeys.users.profile(),
 		queryFn: async (): Promise<User> => {
-			const response = await apiRepo.GET(endPoints.profile);
+			const response = await apiRepo.GET(endPoints.auth.profile);
 			// Check if response has a data property (common API pattern)
 			if (response && typeof response === "object" && "data" in response) {
 				return response.data;
@@ -337,7 +343,7 @@ export const useProfileById = (id: string, enabled: boolean = true) => {
 	return useQuery({
 		queryKey: reactQueryKeys.users.profile(),
 		queryFn: async (): Promise<User> => {
-			const response = await apiRepo.GET(endPoints.profileById(id));
+			const response = await apiRepo.GET(endPoints.auth.profileById(id));
 			// Check if response has a data property (common API pattern)
 			if (response && typeof response === "object" && "data" in response) {
 				return response.data;
@@ -372,12 +378,12 @@ export const useUpdateUserProfile = () => {
 				// Add file
 				formData.append("file", data.file);
 
-				const response = await apiRepo.PUT(endPoints.profile, formData);
+				const response = await apiRepo.PUT(endPoints.auth.profile, formData);
 				return response;
 			} else {
 				// No file, send as JSON
 				const { file, ...profileData } = data;
-				const response = await apiRepo.PUT(endPoints.profile, profileData);
+				const response = await apiRepo.PUT(endPoints.auth.profile, profileData);
 				return response;
 			}
 		},
@@ -403,7 +409,7 @@ export const useChangePassword = () => {
 			currentPassword: string;
 			newPassword: string;
 		}): Promise<{ success: boolean; message: string }> => {
-			const response = await apiRepo.PUT(endPoints.changePassword, data);
+			const response = await apiRepo.PUT(endPoints.auth.changePassword, data);
 			return response;
 		},
 		onSuccess: () => {
@@ -424,7 +430,7 @@ export const useDeleteUser = () => {
 
 	return useMutation({
 		mutationFn: async (userId: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.user(userId));
+			await apiRepo.DELETE(endPoints.users.user(userId));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -432,6 +438,9 @@ export const useDeleteUser = () => {
 			});
 			queryClient.invalidateQueries({
 				queryKey: reactQueryKeys.users.unverified(),
+			});
+			queryClient.refetchQueries({
+				queryKey: reactQueryKeys.users.lists(),
 			});
 			toastService.success("User deleted successfully!");
 		},
@@ -470,12 +479,18 @@ export const useUpdateUser = () => {
 				// Add file
 				formData.append("file", data.file);
 
-				const response = await apiRepo.PUT(endPoints.user(userId), formData);
+				const response = await apiRepo.PATCH(
+					endPoints.users.user(userId),
+					formData
+				);
 				return response;
 			} else {
 				// No file, send as JSON
 				const { file, ...userData } = data;
-				const response = await apiRepo.PUT(endPoints.user(userId), userData);
+				const response = await apiRepo.PATCH(
+					endPoints.users.user(userId),
+					userData
+				);
 				return response;
 			}
 		},

@@ -16,7 +16,7 @@ export const useFeedback = () => {
 	return useQuery({
 		queryKey: reactQueryKeys.feedback.lists(),
 		queryFn: async (): Promise<Feedback[]> => {
-			const response = await apiRepo.GET(endPoints.feedback);
+			const response = await apiRepo.GET(endPoints.feedback.base);
 			if (Array.isArray(response)) return response;
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data?: Feedback[] }).data || [];
@@ -33,7 +33,7 @@ export const useFeedbackById = (id: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.feedback.detail(id),
 		queryFn: async (): Promise<Feedback> => {
-			const response = await apiRepo.GET(endPoints.feedbackById(id));
+			const response = await apiRepo.GET(endPoints.feedback.byId(id));
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data: Feedback }).data;
 			}
@@ -50,7 +50,7 @@ export const useFeedbackByUser = (userId: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.feedback.byUser(userId),
 		queryFn: async (): Promise<Feedback[]> => {
-			const response = await apiRepo.GET(endPoints.feedbackByUser(userId));
+			const response = await apiRepo.GET(endPoints.feedback.byUser(userId));
 			if (Array.isArray(response)) return response;
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data?: Feedback[] }).data || [];
@@ -68,7 +68,7 @@ export const useFeedbackByCategory = (category: string) => {
 		queryKey: reactQueryKeys.feedback.byCategory(category),
 		queryFn: async (): Promise<Feedback[]> => {
 			const response = await apiRepo.GET(
-				endPoints.feedbackByCategory(category)
+				endPoints.feedback.byCategory(category)
 			);
 			if (Array.isArray(response)) return response;
 			if (response && typeof response === "object" && "data" in response) {
@@ -86,7 +86,7 @@ export const useFeedbackByTask = (taskId: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.feedback.byTask(taskId),
 		queryFn: async (): Promise<Feedback[]> => {
-			const response = await apiRepo.GET(endPoints.feedbackByTask(taskId));
+			const response = await apiRepo.GET(endPoints.feedback.byTask(taskId));
 			if (Array.isArray(response)) return response;
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data?: Feedback[] }).data || [];
@@ -103,7 +103,7 @@ export const useFeedbackByMeeting = (eventId: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.feedback.byMeeting(eventId),
 		queryFn: async (): Promise<Feedback[]> => {
-			const response = await apiRepo.GET(endPoints.feedbackByMeeting(eventId));
+			const response = await apiRepo.GET(endPoints.feedback.byMeeting(eventId));
 			if (Array.isArray(response)) return response;
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data?: Feedback[] }).data || [];
@@ -121,7 +121,7 @@ export const useFeedbackByAttendance = (attendanceId: string) => {
 		queryKey: reactQueryKeys.feedback.byAttendance(attendanceId),
 		queryFn: async (): Promise<Feedback[]> => {
 			const response = await apiRepo.GET(
-				endPoints.feedbackByAttendance(attendanceId)
+				endPoints.feedback.byAttendance(attendanceId)
 			);
 			if (Array.isArray(response)) return response;
 			if (response && typeof response === "object" && "data" in response) {
@@ -140,7 +140,7 @@ export const useCreateFeedback = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (data: CreateFeedbackData): Promise<Feedback> => {
-			const response = await apiRepo.POST(endPoints.feedback, data);
+			const response = await apiRepo.POST(endPoints.feedback.base, data);
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data: Feedback }).data;
 			}
@@ -172,7 +172,7 @@ export const useUpdateFeedback = () => {
 			id: string;
 			data: UpdateFeedbackData;
 		}): Promise<Feedback> => {
-			const response = await apiRepo.PATCH(endPoints.feedbackById(id), data);
+			const response = await apiRepo.PATCH(endPoints.feedback.byId(id), data);
 			if (response && typeof response === "object" && "data" in response) {
 				return (response as { data: Feedback }).data;
 			}
@@ -201,7 +201,7 @@ export const useDeleteFeedback = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.feedbackById(id));
+			await apiRepo.DELETE(endPoints.feedback.byId(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({

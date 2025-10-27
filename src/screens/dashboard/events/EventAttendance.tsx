@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import * as XLSX from "xlsx";
 import { useParams, useNavigate } from "react-router-dom";
 import {
 	ArrowLeft,
@@ -184,42 +185,32 @@ const EventAttendance: React.FC = () => {
 	const exportAttendance = () => {
 		if (!event || !filteredAttendance.length) return;
 
-		const csvContent = [
-			[
-				"Name",
-				"Email",
-				"Status",
-				"Check-in Time",
-				"Check-out Time",
-				"Late Minutes",
-				"Early Leave Minutes",
-				"Verified",
-				"Feedback",
-			],
-			...filteredAttendance.map((attendance) => [
-				`${attendance.user.firstName} ${attendance.user.lastName}`,
-				attendance.user.email,
-				attendance.status,
-				attendance.checkInTime ? formatTime(attendance.checkInTime) : "N/A",
-				attendance.checkOutTime ? formatTime(attendance.checkOutTime) : "N/A",
-				attendance.lateMinutes || 0,
-				attendance.earlyLeaveMinutes || 0,
-				attendance.verified ? "Yes" : "No",
-				attendance.feedback || "",
-			]),
-		]
-			.map((row) => row.join(","))
-			.join("\n");
+		const data = filteredAttendance.map((attendance) => ({
+			Name: `${attendance.user.firstName} ${attendance.user.lastName}`,
+			Email: attendance.user.email,
+			Status: attendance.status,
+			"Check-in Time": attendance.checkInTime
+				? formatTime(attendance.checkInTime)
+				: "N/A",
+			"Check-out Time": attendance.checkOutTime
+				? formatTime(attendance.checkOutTime)
+				: "N/A",
+			"Late Minutes": attendance.lateMinutes || 0,
+			"Early Leave Minutes": attendance.earlyLeaveMinutes || 0,
+			Verified: attendance.verified ? "Yes" : "No",
+			Feedback: attendance.feedback || "",
+		}));
 
-		const blob = new Blob([csvContent], { type: "text/csv" });
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement("a");
-		a.href = url;
-		a.download = `${event.title}_attendance.csv`;
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
-		window.URL.revokeObjectURL(url);
+		// Create a new workbook and worksheet
+		const worksheet = XLSX.utils.json_to_sheet(data);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+		// Write to file
+		XLSX.writeFile(
+			workbook,
+			`${event.title}_attendance.xlsx`.replace(/[^a-z0-9]/gi, "_")
+		);
 	};
 
 	if (eventLoading || attendanceLoading) {

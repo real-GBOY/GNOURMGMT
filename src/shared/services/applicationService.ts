@@ -95,7 +95,7 @@ export const useSubmitApplication = () => {
 	return useMutation({
 		mutationFn: async (data: ApplicationPayload): Promise<void> => {
 			// Post to applicants endpoint per backend router
-			await apiRepo.POST(endPoints.applicants, data);
+			await apiRepo.POST(endPoints.applicants.base, data);
 		},
 		onSuccess: () => {
 			toastService.success("Application submitted successfully!");
@@ -113,7 +113,9 @@ export const useGetApplicants = () => {
 		queryKey: ["applicants"],
 		queryFn: async (): Promise<Applicant[]> => {
 			// Add limit parameter to fetch all applicants
-			const response = await apiRepo.GET(`${endPoints.applicants}?limit=1000`);
+			const response = await apiRepo.GET(
+				`${endPoints.applicants.base}?limit=1000`
+			);
 			return response.data as Applicant[];
 		},
 	});
@@ -125,12 +127,12 @@ export const useGetAllApplicantsForAnalytics = () => {
 		queryFn: async (): Promise<Applicant[]> => {
 			// Fetch all applicants without any limit for analytics
 			const response = await apiRepo.GET(
-				`${endPoints.applicants}?limit=0&skip=0`
+				`${endPoints.applicants.base}?limit=0&skip=0`
 			);
 			return response.data as Applicant[];
 		},
 		staleTime: 5 * 60 * 1000, // 5 minutes
-		cacheTime: 10 * 60 * 1000, // 10 minutes
+		gcTime: 10 * 60 * 1000, // 10 minutes
 	});
 };
 
@@ -138,7 +140,7 @@ export const useGetApplicantById = (id: string) => {
 	return useQuery({
 		queryKey: ["applicant", id],
 		queryFn: async (): Promise<Applicant> => {
-			const response = await apiRepo.GET(`${endPoints.applicants}/${id}`);
+			const response = await apiRepo.GET(endPoints.applicants.applicant(id));
 			return response.data;
 		},
 		enabled: !!id,
@@ -156,7 +158,7 @@ export const useUpdateApplicant = () => {
 			data: UpdateApplicantPayload;
 		}): Promise<Applicant> => {
 			const response = await apiRepo.PATCH(
-				`${endPoints.applicants}/${id}`,
+				endPoints.applicants.applicant(id),
 				data
 			);
 			return response.data;
@@ -181,7 +183,7 @@ export const useDeleteApplicant = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(`${endPoints.applicants}/${id}`);
+			await apiRepo.DELETE(endPoints.applicants.applicant(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["applicants"] });

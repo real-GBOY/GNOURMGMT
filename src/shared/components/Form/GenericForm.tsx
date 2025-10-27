@@ -11,6 +11,7 @@ import { useTheme } from "../../contexts/ThemeContext";
 // Define schema field type for better typing
 interface SchemaField {
 	type?: string;
+	required?: boolean;
 	oneOf?: string[];
 	tests?: Array<{
 		OPTIONS?: {
@@ -419,8 +420,10 @@ export function GenericForm<T extends FieldValues>({
 											)?.showPicker?.();
 											el?.focus();
 										}}
-										className={`absolute inset-y-0 right-0 flex items-center pr-3 ${
-											theme === "dark" ? "text-slate-400" : "text-slate-500"
+										className={`absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer hover:bg-opacity-10 rounded-r-2xl transition-all duration-200 ${
+											theme === "dark"
+												? "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
+												: "text-slate-500 hover:text-slate-600 hover:bg-slate-100/80"
 										}`}>
 										<svg
 											className='w-5 h-5'
@@ -874,36 +877,58 @@ export function GenericForm<T extends FieldValues>({
 									</div>
 								) : inputType === "date" ? (
 									<div className='relative'>
-										<input
-											type='date'
-											{...register(key as FieldPath<T>)}
-											max={new Date().toISOString().split("T")[0]}
-											placeholder='Select your date of birth'
-											className={`w-full px-4 py-4 pr-12 border rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
-												theme === "dark"
-													? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 focus:ring-blue-400/20 placeholder-slate-400 hover:bg-slate-800/80"
-													: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 focus:ring-blue-500/20 placeholder-slate-500 hover:bg-gray-50/80"
-											} ${
-												hasError ? "border-red-400 focus:ring-red-400/20" : ""
-											} appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:pointer-events-none`}
-										/>
-										<div
-											className={`absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none ${
-												theme === "dark" ? "text-slate-400" : "text-slate-500"
-											}`}>
-											<svg
-												className='w-5 h-5'
-												fill='none'
-												stroke='currentColor'
-												viewBox='0 0 24 24'>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													strokeWidth={2}
-													d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
-												/>
-											</svg>
-										</div>
+										{(() => {
+											const inputId = `date-${key}`;
+											return (
+												<>
+													<input
+														id={inputId}
+														type='date'
+														{...register(key as FieldPath<T>)}
+														max={new Date().toISOString().split("T")[0]}
+														placeholder='Select your date of birth'
+														className={`w-full px-4 py-4 pr-12 border rounded-2xl focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all duration-300 text-sm font-medium backdrop-blur-md shadow-sm hover:shadow-md ${
+															theme === "dark"
+																? "bg-slate-900/70 text-slate-100 border-slate-600/50 hover:border-slate-500/70 focus:ring-blue-400/20 placeholder-slate-400 hover:bg-slate-800/80"
+																: "bg-white/70 text-slate-900 border-slate-300/50 hover:border-slate-400/70 focus:ring-blue-500/20 placeholder-slate-500 hover:bg-gray-50/80"
+														} ${
+															hasError
+																? "border-red-400 focus:ring-red-400/20"
+																: ""
+														} appearance-none [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:pointer-events-none`}
+													/>
+													<button
+														type='button'
+														onClick={() => {
+															const el = document.getElementById(
+																inputId
+															) as HTMLInputElement | null;
+															(
+																el as unknown as { showPicker?: () => void }
+															)?.showPicker?.();
+															el?.focus();
+														}}
+														className={`absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer hover:bg-opacity-10 rounded-r-2xl transition-all duration-200 ${
+															theme === "dark"
+																? "text-slate-400 hover:text-slate-300 hover:bg-slate-800/50"
+																: "text-slate-500 hover:text-slate-600 hover:bg-slate-100/80"
+														}`}>
+														<svg
+															className='w-5 h-5'
+															fill='none'
+															stroke='currentColor'
+															viewBox='0 0 24 24'>
+															<path
+																strokeLinecap='round'
+																strokeLinejoin='round'
+																strokeWidth={2}
+																d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
+															/>
+														</svg>
+													</button>
+												</>
+											);
+										})()}
 									</div>
 								) : inputType === "datetime-local" ? (
 									<div className='relative'>

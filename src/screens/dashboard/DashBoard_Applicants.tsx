@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import * as XLSX from "xlsx";
 import {
 	Users,
 	Search,
@@ -171,9 +172,9 @@ const DashBoard_Applicants: React.FC = () => {
 		}
 	};
 
-	// CSV Download functionality with Arabic data support
-	const downloadCSV = () => {
-		const csvData = filteredApplicants.map((applicant) => ({
+	// XLSX Download functionality with Arabic data support
+	const downloadXLSX = () => {
+		const data = filteredApplicants.map((applicant) => ({
 			"First Name": applicant.firstName,
 			"Last Name": applicant.lastName,
 			Email: applicant.email,
@@ -206,44 +207,16 @@ const DashBoard_Applicants: React.FC = () => {
 			),
 		}));
 
-		// Convert to CSV string with proper Arabic text support
-		const headers = Object.keys(csvData[0] || {});
-		const csvContent = [
-			headers.join(","),
-			...csvData.map((row) =>
-				headers
-					.map((header) => {
-						const value = row[header as keyof typeof row];
-						// Escape commas, quotes, and newlines in CSV, handle Arabic text properly
-						return typeof value === "string" &&
-							(value.includes(",") ||
-								value.includes('"') ||
-								value.includes("\n") ||
-								value.includes("\r"))
-							? `"${value.replace(/"/g, '""')}"`
-							: value;
-					})
-					.join(",")
-			),
-		].join("\n");
+		// Create a new workbook and worksheet
+		const worksheet = XLSX.utils.json_to_sheet(data);
+		const workbook = XLSX.utils.book_new();
+		XLSX.utils.book_append_sheet(workbook, worksheet, "Applicants");
 
-		// Add UTF-8 BOM for proper Arabic text support in Excel
-		const BOM = "\uFEFF";
-		const csvWithBOM = BOM + csvContent;
-
-		// Create and download file with proper UTF-8 encoding
-		const blob = new Blob([csvWithBOM], { type: "text/csv;charset=utf-8;" });
-		const link = document.createElement("a");
-		const url = URL.createObjectURL(blob);
-		link.setAttribute("href", url);
-		link.setAttribute(
-			"download",
-			`applicants_${new Date().toISOString().split("T")[0]}.csv`
+		// Write to file
+		XLSX.writeFile(
+			workbook,
+			`applicants_${new Date().toISOString().split("T")[0]}.xlsx`
 		);
-		link.style.visibility = "hidden";
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
 	};
 
 	return (
@@ -270,7 +243,7 @@ const DashBoard_Applicants: React.FC = () => {
 					</div>
 					<div className='flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3'>
 						<button
-							onClick={downloadCSV}
+							onClick={downloadXLSX}
 							disabled={filteredApplicants.length === 0}
 							className={`inline-flex items-center justify-center space-x-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base ${
 								theme === "dark"
@@ -283,8 +256,8 @@ const DashBoard_Applicants: React.FC = () => {
 									: `Download all ${filteredApplicants.length} filtered applicants`
 							}>
 							<Download size={16} className='sm:w-[18px] sm:h-[18px]' />
-							<span className='hidden xs:inline'>Download CSV</span>
-							<span className='xs:hidden'>CSV</span>
+							<span className='hidden xs:inline'>Download XLSX</span>
+							<span className='xs:hidden'>XLSX</span>
 						</button>
 						<Link
 							to='/dashboard/applicants/analytics'

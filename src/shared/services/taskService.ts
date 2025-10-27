@@ -18,7 +18,7 @@ export const useTasks = () => {
 	return useQuery({
 		queryKey: reactQueryKeys.tasks.lists(),
 		queryFn: async (): Promise<Task[]> => {
-			const response: TasksResponse = await apiRepo.GET(endPoints.tasks);
+			const response: TasksResponse = await apiRepo.GET(endPoints.tasks.base);
 			return response.data || [];
 		},
 		retry: 1,
@@ -31,7 +31,9 @@ export const useTask = (id: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.tasks.detail(id),
 		queryFn: async (): Promise<Task> => {
-			const response: TaskResponse = await apiRepo.GET(endPoints.task(id));
+			const response: TaskResponse = await apiRepo.GET(
+				endPoints.tasks.task(id)
+			);
 			return response.data;
 		},
 		enabled: !!id,
@@ -62,12 +64,12 @@ export const useCreateTask = () => {
 				}
 
 				// Add files
-				data.files.forEach((file, index) => {
+				data.files.forEach((file) => {
 					formData.append("file", file);
 				});
 
 				const response: TaskResponse = await apiRepo.POST(
-					endPoints.tasks,
+					endPoints.tasks.base,
 					formData
 				);
 				return response.data;
@@ -75,7 +77,7 @@ export const useCreateTask = () => {
 				// No files, send as JSON
 				const { files, ...taskData } = data;
 				const response: TaskResponse = await apiRepo.POST(
-					endPoints.tasks,
+					endPoints.tasks.base,
 					taskData
 				);
 				return response.data;
@@ -107,7 +109,7 @@ export const useUpdateTask = () => {
 			data: UpdateTaskData;
 		}): Promise<Task> => {
 			const response: TaskResponse = await apiRepo.PATCH(
-				endPoints.task(id),
+				endPoints.tasks.task(id),
 				data
 			);
 			return response.data;
@@ -134,7 +136,7 @@ export const useDeleteTask = () => {
 
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.task(id));
+			await apiRepo.DELETE(endPoints.tasks.task(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: reactQueryKeys.tasks.lists() });
@@ -165,7 +167,7 @@ export const useUploadFileToTask = () => {
 			formData.append("file", file);
 
 			const response: TaskResponse = await apiRepo.POST(
-				endPoints.uploadFile(id),
+				endPoints.tasks.uploadFile(id),
 				formData
 			);
 			return response.data;
@@ -198,7 +200,7 @@ export const useRemoveFileFromTask = () => {
 			id: string;
 			fileId: string;
 		}): Promise<void> => {
-			await apiRepo.DELETE(endPoints.removeFile(id, fileId));
+			await apiRepo.DELETE(endPoints.tasks.removeFile(id, fileId));
 		},
 		onSuccess: (_, { id }) => {
 			queryClient.invalidateQueries({ queryKey: reactQueryKeys.tasks.lists() });

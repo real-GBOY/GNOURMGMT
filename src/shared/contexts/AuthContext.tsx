@@ -106,7 +106,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		mutationFn: async ({ email, password }) => {
 			console.log("Making API call to login endpoint");
 			try {
-				const response = await apiRepo.POST(endPoints.login, {
+				const response = await apiRepo.POST(endPoints.auth.login, {
 					email,
 					password,
 				});

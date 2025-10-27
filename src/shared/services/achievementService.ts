@@ -26,8 +26,8 @@ export const useAchievements = (filters?: string) => {
 		queryFn: async (): Promise<Achievement[]> => {
 			const response: AchievementsResponse = await apiRepo.GET(
 				filters
-					? `${endPoints.achievements}?${filters}`
-					: endPoints.achievements
+					? `${endPoints.achievements.base}?${filters}`
+					: endPoints.achievements.base
 			);
 			return response?.data || [];
 		},
@@ -42,7 +42,7 @@ export const useAchievement = (id: string, enabled: boolean = true) => {
 		queryKey: reactQueryKeys.achievements.detail(id),
 		queryFn: async (): Promise<Achievement> => {
 			const response: AchievementResponse = await apiRepo.GET(
-				endPoints.achievement(id)
+				endPoints.achievements.achievement(id)
 			);
 			return response.data;
 		},
@@ -65,8 +65,8 @@ export const useUserAchievements = (
 		queryFn: async (): Promise<Achievement[]> => {
 			const response: AchievementsResponse = await apiRepo.GET(
 				filters
-					? `${endPoints.achievementByUser(userId)}?${filters}`
-					: endPoints.achievementByUser(userId)
+					? `${endPoints.achievements.byUser(userId)}?${filters}`
+					: endPoints.achievements.byUser(userId)
 			);
 			return response?.data || [];
 		},
@@ -82,7 +82,7 @@ export const useAchievementStats = () => {
 		queryKey: reactQueryKeys.achievements.stats(),
 		queryFn: async (): Promise<AchievementStats> => {
 			const response: AchievementStatsResponse = await apiRepo.GET(
-				endPoints.achievementStats
+				endPoints.achievements.stats
 			);
 			return response.data;
 		},
@@ -97,16 +97,25 @@ export const useCreateAchievement = () => {
 
 	return useMutation({
 		mutationFn: async (data: CreateAchievementData): Promise<Achievement> => {
-			console.log("useCreateAchievement: Creating achievement with data:", data);
+			console.log(
+				"useCreateAchievement: Creating achievement with data:",
+				data
+			);
 			try {
 				const response: AchievementResponse = await apiRepo.POST(
-					endPoints.achievements,
+					endPoints.achievements.base,
 					data
 				);
-				console.log("useCreateAchievement: Achievement created successfully:", response);
+				console.log(
+					"useCreateAchievement: Achievement created successfully:",
+					response
+				);
 				return response.data;
 			} catch (error) {
-				console.error("useCreateAchievement: Failed to create achievement:", error);
+				console.error(
+					"useCreateAchievement: Failed to create achievement:",
+					error
+				);
 				throw error;
 			}
 		},
@@ -133,7 +142,7 @@ export const useCreateAchievementWithFile = () => {
 	return useMutation({
 		mutationFn: async (formData: FormData): Promise<Achievement> => {
 			const response: AchievementResponse = await apiRepo.POST(
-				endPoints.achievements,
+				endPoints.achievements.base,
 				formData,
 				{
 					headers: {
@@ -164,7 +173,7 @@ export const useAssignAchievement = () => {
 	return useMutation({
 		mutationFn: async (data: AssignAchievementData): Promise<Achievement> => {
 			const response: AchievementResponse = await apiRepo.POST(
-				endPoints.assignAchievement,
+				endPoints.achievements.assign,
 				data
 			);
 			return response.data;
@@ -190,7 +199,7 @@ export const useAssignAchievementWithFile = () => {
 	return useMutation({
 		mutationFn: async (formData: FormData): Promise<Achievement> => {
 			const response: AchievementResponse = await apiRepo.POST(
-				endPoints.assignAchievement,
+				endPoints.achievements.assign,
 				formData,
 				{
 					headers: {
@@ -227,7 +236,7 @@ export const useUpdateAchievement = () => {
 			data: UpdateAchievementData;
 		}): Promise<Achievement> => {
 			const response: AchievementResponse = await apiRepo.PUT(
-				endPoints.achievement(id),
+				endPoints.achievements.achievement(id),
 				data
 			);
 			return response.data;
@@ -255,7 +264,7 @@ export const useDeleteAchievement = () => {
 
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.achievement(id));
+			await apiRepo.DELETE(endPoints.achievements.achievement(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -283,11 +292,15 @@ export const useUploadSupportingDocument = () => {
 			id: string;
 			formData: FormData;
 		}): Promise<void> => {
-			await apiRepo.POST(endPoints.uploadSupportingDocument(id), formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
+			await apiRepo.POST(
+				endPoints.achievements.uploadSupportingDocument(id),
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
 		},
 		onSuccess: (_, { id }) => {
 			queryClient.invalidateQueries({
@@ -315,11 +328,15 @@ export const useUploadEvidenceFile = () => {
 			id: string;
 			formData: FormData;
 		}): Promise<void> => {
-			await apiRepo.POST(endPoints.uploadEvidenceFile(id), formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
+			await apiRepo.POST(
+				endPoints.achievements.uploadEvidenceFile(id),
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data",
+					},
+				}
+			);
 		},
 		onSuccess: (_, { id }) => {
 			queryClient.invalidateQueries({
@@ -347,7 +364,9 @@ export const useRemoveSupportingDocument = () => {
 			id: string;
 			fileIndex: number;
 		}): Promise<void> => {
-			await apiRepo.DELETE(endPoints.removeSupportingDocument(id, fileIndex));
+			await apiRepo.DELETE(
+				endPoints.achievements.removeSupportingDocument(id, fileIndex)
+			);
 		},
 		onSuccess: (_, { id }) => {
 			queryClient.invalidateQueries({
@@ -375,7 +394,9 @@ export const useRemoveCertificateFile = () => {
 			id: string;
 			fileIndex: number;
 		}): Promise<void> => {
-			await apiRepo.DELETE(endPoints.removeCertificateFile(id, fileIndex));
+			await apiRepo.DELETE(
+				endPoints.achievements.removeCertificateFile(id, fileIndex)
+			);
 		},
 		onSuccess: (_, { id }) => {
 			queryClient.invalidateQueries({
@@ -403,7 +424,9 @@ export const useRemoveEvidenceFile = () => {
 			id: string;
 			fileIndex: number;
 		}): Promise<void> => {
-			await apiRepo.DELETE(endPoints.removeEvidenceFile(id, fileIndex));
+			await apiRepo.DELETE(
+				endPoints.achievements.removeEvidenceFile(id, fileIndex)
+			);
 		},
 		onSuccess: (_, { id }) => {
 			queryClient.invalidateQueries({
@@ -418,5 +441,3 @@ export const useRemoveEvidenceFile = () => {
 		},
 	});
 };
-
-

@@ -17,7 +17,7 @@ export const useTeams = () => {
 	return useQuery({
 		queryKey: reactQueryKeys.teams.lists(),
 		queryFn: async (): Promise<Team[]> => {
-			const response = await apiRepo.GET(endPoints.teams);
+			const response = await apiRepo.GET(endPoints.teams.base);
 			// The API returns teams directly as an array, not wrapped in data
 			return response || [];
 		},
@@ -31,7 +31,7 @@ export const useTeam = (id: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.teams.detail(id),
 		queryFn: async (): Promise<Team> => {
-			const response = await apiRepo.GET(endPoints.team(id));
+			const response = await apiRepo.GET(endPoints.teams.team(id));
 			// The API returns team directly, not wrapped in data
 			return response;
 		},
@@ -46,7 +46,7 @@ export const useTeamMembers = (teamId: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.teams.members(teamId),
 		queryFn: async (): Promise<TeamMember[]> => {
-			const response = await apiRepo.GET(endPoints.teamMembers(teamId));
+			const response = await apiRepo.GET(endPoints.teams.members(teamId));
 			// Handle the new API response structure
 			if (
 				response &&
@@ -70,7 +70,7 @@ export const useCreateTeam = () => {
 
 	return useMutation({
 		mutationFn: async (data: CreateTeamData): Promise<Team> => {
-			const response = await apiRepo.POST(endPoints.teams, data);
+			const response = await apiRepo.POST(endPoints.teams.base, data);
 			return response;
 		},
 		onSuccess: () => {
@@ -98,7 +98,7 @@ export const useUpdateTeam = () => {
 			id: string;
 			data: UpdateTeamData;
 		}): Promise<Team> => {
-			const response = await apiRepo.PATCH(endPoints.team(id), data);
+			const response = await apiRepo.PATCH(endPoints.teams.team(id), data);
 			return response;
 		},
 		onSuccess: (_, { id }) => {
@@ -123,7 +123,7 @@ export const useDeleteTeam = () => {
 
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.team(id));
+			await apiRepo.DELETE(endPoints.teams.team(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: reactQueryKeys.teams.lists() });

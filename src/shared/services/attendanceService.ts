@@ -18,7 +18,7 @@ export const useAttendance = () => {
 	return useQuery({
 		queryKey: reactQueryKeys.attendance.lists(),
 		queryFn: async (): Promise<Attendance[]> => {
-			const response = await apiRepo.GET(endPoints.attendance);
+			const response = await apiRepo.GET(endPoints.attendance.base);
 			return response || [];
 		},
 		retry: 1,
@@ -31,7 +31,7 @@ export const useAttendanceById = (id: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.attendance.detail(id),
 		queryFn: async (): Promise<Attendance> => {
-			const response = await apiRepo.GET(endPoints.attendanceById(id));
+			const response = await apiRepo.GET(endPoints.attendance.byId(id));
 			return response;
 		},
 		enabled: !!id,
@@ -45,7 +45,7 @@ export const useAttendanceByUser = (userId: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.attendance.byUser(userId),
 		queryFn: async (): Promise<Attendance[]> => {
-			const response = await apiRepo.GET(endPoints.attendanceByUser(userId));
+			const response = await apiRepo.GET(endPoints.attendance.byUser(userId));
 			return response || [];
 		},
 		enabled: !!userId,
@@ -59,7 +59,7 @@ export const useAttendanceByEvent = (eventId: string) => {
 	return useQuery({
 		queryKey: reactQueryKeys.attendance.byEvent(eventId),
 		queryFn: async (): Promise<Attendance[]> => {
-			const response = await apiRepo.GET(endPoints.attendanceByEvent(eventId));
+			const response = await apiRepo.GET(endPoints.attendance.byEvent(eventId));
 			return response || [];
 		},
 		enabled: !!eventId,
@@ -77,7 +77,7 @@ export const useAttendanceByUserAndEvent = (
 		queryKey: reactQueryKeys.attendance.byUserAndEvent(userId, eventId),
 		queryFn: async (): Promise<Attendance | null> => {
 			const response = await apiRepo.GET(
-				endPoints.attendanceByUserAndEvent(userId, eventId)
+				endPoints.attendance.byUserAndEvent(userId, eventId)
 			);
 			return response || null;
 		},
@@ -93,7 +93,7 @@ export const useCreateAttendance = () => {
 
 	return useMutation({
 		mutationFn: async (data: CreateAttendanceData): Promise<Attendance> => {
-			const response = await apiRepo.POST(endPoints.attendance, data);
+			const response = await apiRepo.POST(endPoints.attendance.base, data);
 			return response;
 		},
 		onSuccess: () => {
@@ -123,7 +123,7 @@ export const useUpdateAttendance = () => {
 			id: string;
 			data: UpdateAttendanceData;
 		}): Promise<Attendance> => {
-			const response = await apiRepo.PATCH(endPoints.attendanceById(id), data);
+			const response = await apiRepo.PATCH(endPoints.attendance.byId(id), data);
 			return response;
 		},
 		onSuccess: (_, { id }) => {
@@ -150,7 +150,7 @@ export const useDeleteAttendance = () => {
 
 	return useMutation({
 		mutationFn: async (id: string): Promise<void> => {
-			await apiRepo.DELETE(endPoints.attendanceById(id));
+			await apiRepo.DELETE(endPoints.attendance.byId(id));
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
@@ -182,10 +182,10 @@ export const useVerifyAttendance = () => {
 			// Debug: Log the request details
 			console.log("Verifying attendance with ID:", id);
 			console.log("Verification data:", data);
-			console.log("Endpoint:", endPoints.verifyAttendance(id));
+			console.log("Endpoint:", endPoints.attendance.verify(id));
 
 			const response = await apiRepo.PATCH(
-				endPoints.verifyAttendance(id),
+				endPoints.attendance.verify(id),
 				data
 			);
 			return response;
@@ -197,13 +197,13 @@ export const useVerifyAttendance = () => {
 			queryClient.invalidateQueries({
 				queryKey: reactQueryKeys.attendance.detail(id),
 			});
-			
+
 			// Enhanced success message based on verification status
 			const isVerified = data.verified;
-			const message = isVerified 
-				? "✅ Attendance verified successfully!" 
+			const message = isVerified
+				? "✅ Attendance verified successfully!"
 				: "❌ Attendance unverified successfully!";
-			
+
 			toastService.success(message);
 		},
 		onError: (error: unknown) => {
@@ -247,7 +247,10 @@ export const useAddFeedback = () => {
 			id: string;
 			data: AddFeedbackData;
 		}): Promise<Attendance> => {
-			const response = await apiRepo.PATCH(endPoints.addFeedback(id), data);
+			const response = await apiRepo.PATCH(
+				endPoints.attendance.addFeedback(id),
+				data
+			);
 			return response;
 		},
 		onSuccess: (_, { id }) => {
