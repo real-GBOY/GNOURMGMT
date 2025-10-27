@@ -41,8 +41,8 @@ const ApplicantsAnalytics: React.FC = () => {
 	const { data: allApplicants = [], isLoading } =
 		useGetAllApplicantsForAnalytics();
 
-	// Calculate pagination
-	const typedAllApplicants = allApplicants as Applicant[];
+	// Calculate pagination - Limit to 10 members total
+	const typedAllApplicants = (allApplicants as Applicant[]).slice(0, 10);
 	const totalPages = Math.ceil(typedAllApplicants.length / itemsPerPage);
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const endIndex = startIndex + itemsPerPage;
@@ -95,7 +95,10 @@ const ApplicantsAnalytics: React.FC = () => {
 		// Gender distribution
 		const genderDistribution = typedApplicants.reduce((acc, applicant) => {
 			const gender = applicant.gender || "Unknown";
-			acc[gender] = (acc[gender] || 0) + 1;
+			// Filter out "mickey mouse" entries
+			if (gender.toLowerCase() !== "mickey mouse") {
+				acc[gender] = (acc[gender] || 0) + 1;
+			}
 			return acc;
 		}, {} as Record<string, number>);
 

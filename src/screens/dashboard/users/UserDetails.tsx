@@ -27,6 +27,7 @@ import {
 	useUserWithFallback,
 	getUserDisplayName,
 	isUserVerified,
+	useDeleteUser,
 } from "../../../shared/services/userService";
 import { useUserAchievements } from "../../../shared/services/achievementService";
 import PermissionGate from "../../../shared/Secure/PermissionGate";
@@ -34,6 +35,7 @@ import Permissions from "../../../shared/config/Permissions";
 import usePermission from "../../../shared/hooks/usePermission";
 import Modal from "../../../shared/components/Modal";
 import CertificateForm from "../../../shared/components/CertificateForm";
+import UserEditModal from "../../../shared/components/UserEditModal";
 
 const UserDetails: React.FC = () => {
 	const { userId } = useParams<{ userId: string }>();
@@ -46,8 +48,13 @@ const UserDetails: React.FC = () => {
 		hasPermission(Permissions.ViewPerson) ||
 		hasPermission(Permissions.ViewTeamMembers);
 
-	// Certificate modal state
+	// Modal states
 	const [showCertificateModal, setShowCertificateModal] = useState(false);
+	const [showEditModal, setShowEditModal] = useState(false);
+	const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+	// Delete user mutation
+	const deleteUserMutation = useDeleteUser();
 
 	const handleAddCertificate = () => {
 		setShowCertificateModal(true);
@@ -59,6 +66,21 @@ const UserDetails: React.FC = () => {
 
 	const handleCloseCertificateModal = () => {
 		setShowCertificateModal(false);
+	};
+
+	const handleEditUser = () => {
+		setShowEditModal(true);
+	};
+
+	const handleDeleteUser = async () => {
+		if (!user) return;
+
+		try {
+			await deleteUserMutation.mutateAsync(user._id);
+			navigate("/dashboard/users");
+		} catch (error) {
+			console.error("Failed to delete user:", error);
+		}
 	};
 
 	// React Query hook to fetch user data
@@ -284,6 +306,7 @@ const UserDetails: React.FC = () => {
 
 							<PermissionGate permission={Permissions.ApprovePerson}>
 								<button
+									onClick={handleEditUser}
 									className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-lg transition-colors duration-300 ${
 										theme === "dark"
 											? "bg-blue-900/30 text-blue-400 hover:bg-blue-800/30"
@@ -296,6 +319,7 @@ const UserDetails: React.FC = () => {
 
 							<PermissionGate permission={Permissions.RejectPerson}>
 								<button
+									onClick={() => setShowDeleteModal(true)}
 									className={`w-full flex items-center justify-center space-x-2 py-2 px-4 rounded-lg transition-colors duration-300 ${
 										theme === "dark"
 											? "bg-red-900/30 text-red-400 hover:bg-red-800/30"
@@ -780,6 +804,58 @@ const UserDetails: React.FC = () => {
 						onSubmit={handleCertificateSubmit}
 						onCancel={handleCloseCertificateModal}
 					/>
+				</Modal>
+			)}
+
+			{/* Edit User Modal */}
+			{showEditModal && user && (
+				<UserEditModal
+					isOpen={showEditModal}
+					onClose={() => setShowEditModal(false)}
+					user={user}
+				/>
+			)}
+
+			{/* Delete Confirmation Modal */}
+			{showDeleteModal && user && (
+				<Modal
+					isOpen={showDeleteModal}
+					onClose={() => setShowDeleteModal(false)}
+					title='Delete User'
+					size='sm'>
+					<div className='space-y-4'>
+						<p
+							className={`text-sm transition-colors duration-300 ${
+								theme === "dark" ? "text-gray-300" : "text-gray-700"
+							}`}>
+							Are you sure you want to delete{" "}
+							<strong>
+								{user.firstName} {user.lastName}
+							</strong>
+							? This action cannot be undone.
+						</p>
+						<div className='flex justify-end space-x-3'>
+							<button
+								onClick={() => setShowDeleteModal(false)}
+								className={`px-4 py-2 rounded-lg transition-colors duration-300 ${
+									theme === "dark"
+										? "bg-gray-700 hover:bg-gray-600 text-white"
+										: "bg-gray-200 hover:bg-gray-300 text-gray-800"
+								}`}>
+								Cancel
+							</button>
+							<button
+								onClick={handleDeleteUser}
+								disabled={deleteUserMutation.isPending}
+								className={`px-4 py-2 rounded-lg transition-colors duration-300 ${
+									theme === "dark"
+										? "bg-red-600 hover:bg-red-700 text-white disabled:bg-red-800"
+										: "bg-red-600 hover:bg-red-700 text-white disabled:bg-red-400"
+								}`}>
+								{deleteUserMutation.isPending ? "Deleting..." : "Delete User"}
+							</button>
+						</div>
+					</div>
 				</Modal>
 			)}
 		</div>

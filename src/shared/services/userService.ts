@@ -417,3 +417,82 @@ export const useChangePassword = () => {
 		},
 	});
 };
+
+// Delete user
+export const useDeleteUser = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (userId: string): Promise<void> => {
+			await apiRepo.DELETE(endPoints.user(userId));
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: reactQueryKeys.users.lists(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: reactQueryKeys.users.unverified(),
+			});
+			toastService.success("User deleted successfully!");
+		},
+		onError: (error: unknown) => {
+			const errorMessage =
+				(error as { response?: { data?: { message?: string } } })?.response
+					?.data?.message || "Failed to delete user";
+			toastService.error(errorMessage);
+		},
+	});
+};
+
+// Update user (for admin editing other users)
+export const useUpdateUser = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			userId,
+			data,
+		}: {
+			userId: string;
+			data: Partial<User> & { file?: File };
+		}): Promise<User> => {
+			// If file is provided, use FormData
+			if (data.file) {
+				const formData = new FormData();
+
+				// Add user data
+				Object.entries(data).forEach(([key, value]) => {
+					if (key !== "file" && value !== undefined && value !== null) {
+						formData.append(key, value.toString());
+					}
+				});
+
+				// Add file
+				formData.append("file", data.file);
+
+				const response = await apiRepo.PUT(endPoints.user(userId), formData);
+				return response;
+			} else {
+				// No file, send as JSON
+				const { file, ...userData } = data;
+				const response = await apiRepo.PUT(endPoints.user(userId), userData);
+				return response;
+			}
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({
+				queryKey: reactQueryKeys.users.lists(),
+			});
+			queryClient.invalidateQueries({
+				queryKey: reactQueryKeys.users.unverified(),
+			});
+			toastService.success("User updated successfully!");
+		},
+		onError: (error: unknown) => {
+			const errorMessage =
+				(error as { response?: { data?: { message?: string } } })?.response
+					?.data?.message || "Failed to update user";
+			toastService.error(errorMessage);
+		},
+	});
+};
