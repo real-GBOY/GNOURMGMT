@@ -4,6 +4,8 @@ const endPoints = {
 	auth: {
 		login: "/auth/login",
 		register: "/auth/signup",
+		refresh: "/auth/refresh",
+		logout: "/auth/logout",
 		profile: "/auth/profile",
 		profileById: (id: string) => `/auth/profile/${id}`,
 		changePassword: "/auth/profile/password",

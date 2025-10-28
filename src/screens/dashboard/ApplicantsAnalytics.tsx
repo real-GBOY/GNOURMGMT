@@ -41,8 +41,8 @@ const ApplicantsAnalytics: React.FC = () => {
 	const { data: allApplicants = [], isLoading } =
 		useGetAllApplicantsForAnalytics();
 
-	// Calculate pagination - Limit to 10 members total
-	const typedAllApplicants = (allApplicants as Applicant[]).slice(0, 10);
+	// Use all applicants for analytics (no slicing/limiting)
+	const typedAllApplicants = allApplicants as Applicant[];
 	const totalPages = Math.ceil(typedAllApplicants.length / itemsPerPage);
 	const startIndex = (currentPage - 1) * itemsPerPage;
 	const endIndex = startIndex + itemsPerPage;
@@ -467,62 +467,72 @@ const ApplicantsAnalytics: React.FC = () => {
 							</ResponsiveContainer>
 						</div>
 					</motion.div>
-
-					{/* Faculty Distribution - Pie Chart */}
 					<motion.div
-						className={`p-4 sm:p-6 rounded-xl border transition-all duration-300 lg:col-span-2 ${
+						className={`p-4 sm:p-6 rounded-xl border transition-all duration-300 ${
 							theme === "dark"
 								? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
 								: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
 						}`}
 						initial={{ opacity: 0, y: 20 }}
 						animate={{ opacity: 1, y: 0 }}
-						transition={{ duration: 0.5, delay: 0.3 }}>
+						transition={{ duration: 0.5, delay: 0.8 }}>
 						<h3
 							className={`text-base sm:text-xl font-semibold mb-3 sm:mb-4 transition-colors duration-300 ${
 								theme === "dark" ? "text-white" : "text-black"
 							}`}>
-							Applications by Faculty
+							Gender Distribution (Progress View)
 						</h3>
-						<div className='h-64 sm:h-80'>
-							<ResponsiveContainer width='100%' height='100%'>
-								<RechartsPieChart>
-									<Pie
-										data={analytics.facultyChartData}
-										cx='50%'
-										cy='50%'
-										labelLine={false}
-										label={({ name, percent }) => {
-											const percentage =
-												typeof percent === "number"
-													? (percent * 100).toFixed(0)
-													: "0";
-											return `${name} ${percentage}%`;
-										}}
-										outerRadius={60}
-										fill='#8884d8'
-										dataKey='value'>
-										{analytics.facultyChartData.map((entry, index) => (
-											<Cell
-												key={`cell-${index}`}
-												fill={PIE_COLORS[index % PIE_COLORS.length]}
-											/>
-										))}
-									</Pie>
-									<Tooltip
-										contentStyle={{
-											backgroundColor: theme === "dark" ? "#1F2937" : "#FFFFFF",
-											border:
-												theme === "dark"
-													? "1px solid #374151"
-													: "1px solid #E5E7EB",
-											borderRadius: "8px",
-											color: theme === "dark" ? "#F9FAFB" : "#111827",
-											fontSize: "12px",
-										}}
-									/>
-								</RechartsPieChart>
-							</ResponsiveContainer>
+						<div className='space-y-3'>
+							{Object.entries(analytics.genderDistribution)
+								.sort(([, a], [, b]) => b - a)
+								.map(([gender, count]) => {
+									const percentage = (count / analytics.total) * 100;
+									const genderColor =
+										gender === "Male"
+											? "blue"
+											: gender === "Female"
+											? "pink"
+											: "purple";
+									return (
+										<div key={gender} className='space-y-2'>
+											<div className='flex justify-between items-center'>
+												<span
+													className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
+														theme === "dark" ? "text-gray-300" : "text-gray-700"
+													}`}>
+													{gender}
+												</span>
+												<span
+													className={`text-xs sm:text-sm font-bold transition-colors duration-300 ${
+														theme === "dark" ? "text-white" : "text-black"
+													}`}>
+													{count} ({percentage.toFixed(1)}%)
+												</span>
+											</div>
+											<div
+												className={`w-full rounded-full h-2 ${
+													theme === "dark" ? "bg-gray-800" : "bg-gray-200"
+												}`}>
+												<div
+													className={`h-2 rounded-full ${
+														genderColor === "blue"
+															? theme === "dark"
+																? "bg-blue-500"
+																: "bg-blue-600"
+															: genderColor === "pink"
+															? theme === "dark"
+																? "bg-pink-500"
+																: "bg-pink-600"
+															: theme === "dark"
+															? "bg-purple-500"
+															: "bg-purple-600"
+													}`}
+													style={{ width: `${percentage}%` }}
+												/>
+											</div>
+										</div>
+									);
+								})}
 						</div>
 					</motion.div>
 				</div>
@@ -652,74 +662,6 @@ const ApplicantsAnalytics: React.FC = () => {
 				</motion.div>
 
 				{/* Status Distribution - Progress Bars */}
-				<motion.div
-					className={`p-4 sm:p-6 rounded-xl border transition-all duration-300 ${
-						theme === "dark"
-							? "bg-gray-900/30 backdrop-blur-2xl border-gray-700/50 shadow-2xl"
-							: "bg-white/40 backdrop-blur-2xl border-gray-200/60 shadow-2xl"
-					}`}
-					initial={{ opacity: 0, y: 20 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ duration: 0.5, delay: 0.8 }}>
-					<h3
-						className={`text-base sm:text-xl font-semibold mb-3 sm:mb-4 transition-colors duration-300 ${
-							theme === "dark" ? "text-white" : "text-black"
-						}`}>
-						Gender Distribution (Progress View)
-					</h3>
-					<div className='space-y-3'>
-						{Object.entries(analytics.genderDistribution)
-							.sort(([, a], [, b]) => b - a)
-							.map(([gender, count]) => {
-								const percentage = (count / analytics.total) * 100;
-								const genderColor =
-									gender === "Male"
-										? "blue"
-										: gender === "Female"
-										? "pink"
-										: "purple";
-								return (
-									<div key={gender} className='space-y-2'>
-										<div className='flex justify-between items-center'>
-											<span
-												className={`text-xs sm:text-sm font-medium transition-colors duration-300 ${
-													theme === "dark" ? "text-gray-300" : "text-gray-700"
-												}`}>
-												{gender}
-											</span>
-											<span
-												className={`text-xs sm:text-sm font-bold transition-colors duration-300 ${
-													theme === "dark" ? "text-white" : "text-black"
-												}`}>
-												{count} ({percentage.toFixed(1)}%)
-											</span>
-										</div>
-										<div
-											className={`w-full rounded-full h-2 ${
-												theme === "dark" ? "bg-gray-800" : "bg-gray-200"
-											}`}>
-											<div
-												className={`h-2 rounded-full ${
-													genderColor === "blue"
-														? theme === "dark"
-															? "bg-blue-500"
-															: "bg-blue-600"
-														: genderColor === "pink"
-														? theme === "dark"
-															? "bg-pink-500"
-															: "bg-pink-600"
-														: theme === "dark"
-														? "bg-purple-500"
-														: "bg-purple-600"
-												}`}
-												style={{ width: `${percentage}%` }}
-											/>
-										</div>
-									</div>
-								);
-							})}
-					</div>
-				</motion.div>
 
 				{/* Monthly Applications - Progress Bars */}
 				<motion.div

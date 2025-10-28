@@ -42,7 +42,7 @@ interface AuthContextType {
 	isLoading: boolean;
 	login: (email: string, password: string) => Promise<void>;
 	setAuthData: (token: string, user: User) => void;
-	logout: () => void;
+	logout: () => Promise<void>;
 	loginMutation: ReturnType<
 		typeof useMutation<
 			LoginResponse,
@@ -175,6 +175,12 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 					permissions: user.role?.permissions?.map((p: Permission) => p.key),
 				});
 
+				// Store refreshToken if available
+				const refreshToken = data.data?.refreshToken || data.refreshToken;
+				if (refreshToken) {
+					Cookies.set("refreshToken", refreshToken, { expires: 30 }); // Expires in 30 days
+				}
+
 				// Set cookies with proper options for persistence
 				Cookies.set("token", accessToken, { expires: 7 }); // Expires in 7 days
 				Cookies.set("user", JSON.stringify(user), { expires: 7 }); // Expires in 7 days
@@ -226,12 +232,21 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 		setIsAuthenticated(true);
 	};
 
-	const logout = () => {
-		setToken(null);
-		setUser(null);
-		setIsAuthenticated(false);
-		Cookies.remove("token");
-		Cookies.remove("user");
+	const logout = async () => {
+		try {
+			// Call backend logout endpoint
+			await apiRepo.POST(endPoints.auth.logout, {});
+		} catch (error) {
+			console.error("Logout error:", error);
+		} finally {
+			// Always clear local state and cookies
+			setToken(null);
+			setUser(null);
+			setIsAuthenticated(false);
+			Cookies.remove("token");
+			Cookies.remove("user");
+			Cookies.remove("refreshToken");
+		}
 	};
 
 	return (
