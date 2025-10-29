@@ -68,7 +68,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 						href: "/dashboard/applicants",
 						icon: LayoutDashboard,
 						permission: null,
-						category: "main",
+						category: "main" as const,
 						description: "Applicants overview and statistics",
 					},
 					{
@@ -76,7 +76,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 						href: "/dashboard",
 						icon: LayoutDashboard,
 						permission: null,
-						category: "main",
+						category: "main" as const,
 						description: "Normal dashboard overview",
 					},
 			  ]
@@ -87,7 +87,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 						href: "/dashboard/applicants",
 						icon: LayoutDashboard,
 						permission: null,
-						category: "main",
+						category: "main" as const,
 						description: "Overview and statistics",
 					},
 			  ]),
@@ -96,25 +96,17 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/profile",
 			icon: User,
 			permission: null,
-			category: "main",
+			category: "main" as const,
 			description: "Manage your profile",
 		},
 
 		// Management navigation - requires specific permissions
 		{
-			name: "Users",
-			href: "/dashboard/users",
-			icon: Users,
-			permission: Permissions.ViewPerson,
-			category: "management",
-			description: "View all users",
-		},
-		{
 			name: "Members",
 			href: "/dashboard/members",
 			icon: Users,
 			permission: Permissions.ViewPerson,
-			category: "management",
+			category: "management" as const,
 			description: "Manage team members",
 		},
 
@@ -123,7 +115,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/teams",
 			icon: Users,
 			permission: Permissions.ViewTeam,
-			category: "management",
+			category: "management" as const,
 			description: "Manage project teams",
 		},
 		{
@@ -131,7 +123,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/tasks",
 			icon: ListTodo,
 			permission: Permissions.ViewTask,
-			category: "management",
+			category: "management" as const,
 			description: "Manage project tasks",
 		},
 		{
@@ -139,7 +131,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/events",
 			icon: Calendar,
 			permission: Permissions.ViewEvent,
-			category: "management",
+			category: "management" as const,
 			description: "Manage events and meetings",
 		},
 		{
@@ -147,7 +139,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/feedbacks",
 			icon: FileText,
 			permission: Permissions.ViewFeedback,
-			category: "management",
+			category: "management" as const,
 			description: "View and manage feedback",
 		},
 		{
@@ -155,7 +147,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/achievements",
 			icon: Trophy,
 			permission: Permissions.ViewAchievement,
-			category: "management",
+			category: "management" as const,
 			description: "View and manage achievements",
 		},
 
@@ -165,7 +157,7 @@ const RoleBasedNavigation: React.FC<RoleBasedNavigationProps> = ({
 			href: "/dashboard/users/verification",
 			icon: UserCheck,
 			permission: Permissions.ViewUnverifiedPerson,
-			category: "user",
+			category: "user" as const,
 			description: "Verify new user accounts",
 			// badge: "New",
 		},

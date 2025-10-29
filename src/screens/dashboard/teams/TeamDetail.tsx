@@ -17,6 +17,7 @@ import {
 	useTeam,
 	useUpdateTeam,
 	useDeleteTeam,
+	useAddTeamMembers,
 } from "../../../shared/services/teamService";
 import { GenericForm } from "../../../shared/components/Form/GenericForm";
 import TeamMembers from "../../../shared/components/TeamMembers";
@@ -30,11 +31,14 @@ const TeamDetail: React.FC = () => {
 	const { id } = useParams<{ id: string }>();
 	const navigate = useNavigate();
 	const [showEditModal, setShowEditModal] = useState(false);
+	const [showAddMembersModal, setShowAddMembersModal] = useState(false);
+	const [addMembersInput, setAddMembersInput] = useState("");
 
 	// React Query hooks
 	const { data: team, isLoading, error } = useTeam(id!);
 	const updateTeamMutation = useUpdateTeam();
 	const deleteTeamMutation = useDeleteTeam();
+	const addMembersMutation = useAddTeamMembers();
 
 	const handleUpdateTeam = async (data: UpdateTeamData) => {
 		if (!team) return;
@@ -57,6 +61,28 @@ const TeamDetail: React.FC = () => {
 			} catch {
 				// Error is handled by the mutation
 			}
+		}
+	};
+
+	const handleOpenAddMembers = () => {
+		setAddMembersInput("");
+		setShowAddMembersModal(true);
+	};
+
+	const handleAddMembersSubmit = async () => {
+		if (!team) return;
+		const memberIds = addMembersInput
+			.split(",")
+			.map((s) => s.trim())
+			.filter((s) => s.length > 0);
+		if (memberIds.length === 0) {
+			return;
+		}
+		try {
+			await addMembersMutation.mutateAsync({ teamId: team._id, memberIds });
+			setShowAddMembersModal(false);
+		} catch {
+			// handled by mutation
 		}
 	};
 
@@ -225,6 +251,7 @@ const TeamDetail: React.FC = () => {
 					<motion.button
 						whileHover={{ scale: 1.02 }}
 						whileTap={{ scale: 0.98 }}
+						onClick={handleOpenAddMembers}
 						className={`p-4 rounded-xl transition-all duration-300 ${
 							theme === "dark"
 								? "bg-gray-800/60 backdrop-blur-xl border-gray-700/50 hover:bg-gray-700/60"
@@ -258,6 +285,7 @@ const TeamDetail: React.FC = () => {
 					<motion.button
 						whileHover={{ scale: 1.02 }}
 						whileTap={{ scale: 0.98 }}
+						onClick={() => setShowEditModal(true)}
 						className={`p-4 rounded-xl transition-all duration-300 ${
 							theme === "dark"
 								? "bg-gray-800/60 backdrop-blur-xl border-gray-700/50 hover:bg-gray-700/60"
@@ -360,6 +388,65 @@ const TeamDetail: React.FC = () => {
 							}`}>
 							Cancel
 						</button>
+					</motion.div>
+				</div>
+			)}
+
+			{/* Add Members Modal */}
+			{showAddMembersModal && (
+				<div className='fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]'>
+					<motion.div
+						initial={{ opacity: 0, scale: 0.9 }}
+						animate={{ opacity: 1, scale: 1 }}
+						className={`w-full max-w-md p-6 rounded-xl ${
+							theme === "dark"
+								? "bg-gray-900 border border-gray-800"
+								: "bg-white border border-gray-200"
+						}`}>
+						<h2
+							className={`text-xl font-semibold mb-4 transition-colors duration-300 ${
+								theme === "dark" ? "text-white" : "text-black"
+							}`}>
+							Add Members
+						</h2>
+						<p
+							className={`text-sm mb-3 ${
+								theme === "dark" ? "text-gray-300" : "text-gray-700"
+							}`}>
+							Enter user IDs separated by commas.
+						</p>
+						<textarea
+							value={addMembersInput}
+							onChange={(e) => setAddMembersInput(e.target.value)}
+							rows={4}
+							className={`w-full p-3 rounded-lg outline-none transition-colors duration-300 ${
+								theme === "dark"
+									? "bg-gray-800 border border-gray-700 text-white placeholder:text-gray-400"
+									: "bg-gray-100 border border-gray-300 text-black placeholder:text-gray-500"
+							}`}
+							placeholder='e.g. 64f1..., 64f2..., 64f3...'
+						/>
+						<div className='mt-4 grid grid-cols-2 gap-3'>
+							<button
+								onClick={() => setShowAddMembersModal(false)}
+								className={`py-2 px-4 rounded-lg transition-colors duration-300 ${
+									theme === "dark"
+										? "bg-gray-800 hover:bg-gray-700 text-white"
+										: "bg-gray-200 hover:bg-gray-300 text-black"
+								}`}>
+								Cancel
+							</button>
+							<button
+								onClick={handleAddMembersSubmit}
+								disabled={addMembersMutation.isPending}
+								className={`py-2 px-4 rounded-lg transition-colors duration-300 ${
+									theme === "dark"
+										? "bg-blue-600 hover:bg-blue-700 text-white"
+										: "bg-blue-600 hover:bg-blue-700 text-white"
+								}`}>
+								{addMembersMutation.isPending ? "Adding..." : "Add Members"}
+							</button>
+						</div>
 					</motion.div>
 				</div>
 			)}

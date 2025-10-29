@@ -137,3 +137,37 @@ export const useDeleteTeam = () => {
 		},
 	});
 };
+
+// Add members to a team
+export const useAddTeamMembers = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async ({
+			teamId,
+			memberIds,
+		}: {
+			teamId: string;
+			memberIds: string[];
+		}): Promise<void> => {
+			await apiRepo.POST(endPoints.teams.members(teamId), {
+				members: memberIds,
+			});
+		},
+		onSuccess: (_data, variables) => {
+			queryClient.invalidateQueries({
+				queryKey: reactQueryKeys.teams.members(variables.teamId),
+			});
+			queryClient.invalidateQueries({
+				queryKey: reactQueryKeys.teams.detail(variables.teamId),
+			});
+			toastService.success("Members added successfully!");
+		},
+		onError: (error: unknown) => {
+			const errorMessage =
+				(error as { response?: { data?: { message?: string } } })?.response
+					?.data?.message || "Failed to add members";
+			toastService.error(errorMessage);
+		},
+	});
+};
