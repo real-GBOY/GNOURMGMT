@@ -93,7 +93,8 @@ const Achievements: React.FC = () => {
 				(achievement) =>
 					achievement.awardedBy === currentUser.id ||
 					achievement.user === currentUser.id ||
-					(typeof achievement.user === "object" &&
+					(achievement.user &&
+						typeof achievement.user === "object" &&
 						achievement.user._id === currentUser.id)
 			);
 		}
@@ -103,7 +104,8 @@ const Achievements: React.FC = () => {
 			return achievements.filter(
 				(achievement) =>
 					achievement.user === currentUser.id ||
-					(typeof achievement.user === "object" &&
+					(achievement.user &&
+						typeof achievement.user === "object" &&
 						achievement.user._id === currentUser.id) ||
 					achievement.awardedBy === currentUser.id
 			);
@@ -121,7 +123,8 @@ const Achievements: React.FC = () => {
 				achievement.description
 					.toLowerCase()
 					.includes(searchTerm.toLowerCase()) ||
-				(typeof achievement.user === "object" &&
+				(achievement.user &&
+					typeof achievement.user === "object" &&
 					`${achievement.user.firstName} ${achievement.user.lastName}`
 						.toLowerCase()
 						.includes(searchTerm.toLowerCase()));
@@ -873,7 +876,8 @@ const Achievements: React.FC = () => {
 													className={`text-sm transition-colors duration-300 ${
 														theme === "dark" ? "text-white" : "text-black"
 													}`}>
-													{typeof achievement.user === "object"
+													{achievement.user &&
+													typeof achievement.user === "object"
 														? `${achievement.user.firstName} ${achievement.user.lastName}`
 														: "Unknown User"}
 												</div>
@@ -881,7 +885,8 @@ const Achievements: React.FC = () => {
 													className={`text-sm transition-colors duration-300 ${
 														theme === "dark" ? "text-gray-400" : "text-gray-600"
 													}`}>
-													{typeof achievement.user === "object"
+													{achievement.user &&
+													typeof achievement.user === "object"
 														? achievement.user.email
 														: ""}
 												</div>
@@ -909,13 +914,15 @@ const Achievements: React.FC = () => {
 													<span
 														className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
 															achievement.user === currentUser?.id ||
-															(typeof achievement.user === "object" &&
+															(achievement.user &&
+																typeof achievement.user === "object" &&
 																achievement.user._id === currentUser?.id)
 																? "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
 																: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-200"
 														}`}>
 														{achievement.user === currentUser?.id ||
-														(typeof achievement.user === "object" &&
+														(achievement.user &&
+															typeof achievement.user === "object" &&
 															achievement.user._id === currentUser?.id)
 															? "Your Achievement"
 															: "Awarded by You"}
